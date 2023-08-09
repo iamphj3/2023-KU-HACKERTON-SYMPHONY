@@ -1,15 +1,9 @@
-import { styled } from 'styled-components';
+import Router from '../Router';
 
 function App() {
   return (
-    <St>
-      insTAG
-    </St>
+    <Router />
   );
 }
 
 export default App;
-
-const St = styled.main`
-  color: blue; 
-`;
