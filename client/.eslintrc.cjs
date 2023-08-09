@@ -20,6 +20,7 @@ module.exports = {
     'import/no-extraneous-dependencies': [
       'error',
       { "devDependencies": true }
-    ]
+    ],
+    "import/no-named-as-default": 0
   },
 }
