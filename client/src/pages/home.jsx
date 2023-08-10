@@ -1,9 +1,10 @@
-import { Header } from '../components/common/Header';
+import { BaseLayout } from '../layouts/BaseLayout';
+import { Trending } from '../components/Home';
 
 export default function home() {
   return (
-    <div>
-      <Header />
-    </div>
+    <BaseLayout>
+      <Trending />
+    </BaseLayout>
   );
 }
