@@ -1,5 +1,6 @@
 import { styled } from 'styled-components';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
+import PostCard from './PostCard';
 
 const RESULT_TABS = {
   tabList: ['최신순', '좋아요 순', '댓글 많은 순'],
@@ -21,6 +22,7 @@ export default function Result() {
           noSelectedStyle={noSelectedStyle}
         />
       </div>
+      <PostCard />
     </StResult>
   );
 }
