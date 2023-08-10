@@ -28,7 +28,7 @@ const StPostCard = styled.article`
   display: flex;
   flex-direction: column;
 
-  width: 16.8rem;
+  width: 100%;
   height: 30rem;
 
   & > img {

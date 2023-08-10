@@ -28,6 +28,8 @@ export default function Result() {
 }
 
 const StResult = styled.section`
+  margin-bottom: 12rem;
+  
   & > div {
     display: flex;
     justify-content: space-between;
