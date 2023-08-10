@@ -1,17 +1,9 @@
-import { styled } from 'styled-components';
+import { Header } from '../components/common/Header';
 
-export default function Home() {
+export default function home() {
   return (
-    <St>
-      홈
-    </St>
+    <div>
+      <Header />
+    </div>
   );
 }
-
-const St = styled.div`
-  width: 100%;
-  ${({ theme }) => theme.fonts.Head1};
-  height: 100vh;
-
-  background-color: ${({ theme }) => theme.colors.Gray3};;
-`;
