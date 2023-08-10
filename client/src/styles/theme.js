@@ -9,7 +9,7 @@ const colors = {
   Gray4: '#9090A0',
   Gray5: '#626273',
   Gray6: '#464656',
-  Instag_purple: '#6E53FF',
+  main: '#6E53FF',
 };
 
 const fonts = {
