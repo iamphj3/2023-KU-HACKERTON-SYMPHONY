@@ -1,6 +1,6 @@
 import { styled } from 'styled-components';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
-import PostCard from './PostCard';
+import PostResult from './PostResult';
 
 const RESULT_TABS = {
   tabList: ['최신순', '좋아요 순', '댓글 많은 순'],
@@ -22,7 +22,7 @@ export default function Result() {
           noSelectedStyle={noSelectedStyle}
         />
       </div>
-      <PostCard />
+      <PostResult />
     </StResult>
   );
 }
@@ -32,6 +32,7 @@ const StResult = styled.section`
     display: flex;
     justify-content: space-between;
     align-items: end;
+    margin-bottom: 2.4rem;
 
     & > h2 {
         ${({ theme }) => theme.fonts.Head1};
