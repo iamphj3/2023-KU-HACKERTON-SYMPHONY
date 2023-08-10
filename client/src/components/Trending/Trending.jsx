@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import { getToday } from '../../utils';
+import TrendingRank from './TrendingRank';
 
 const TRENDING_TABS = {
   tabList: ['일별', '주간별'],
@@ -19,12 +20,15 @@ export default function Trending() {
         트렌딩 해시태그
         <span> TOP10</span>
       </h3>
-      <time dateTime={datetime}>{today}</time>
-      <TabSwitcher
-        tabList={tabList}
-        selectedStyle={selectedStyle}
-        noSelectedStyle={noSelectedStyle}
-      />
+      <div>
+        <time dateTime={datetime}>{today}</time>
+        <TabSwitcher
+          tabList={tabList}
+          selectedStyle={selectedStyle}
+          noSelectedStyle={noSelectedStyle}
+        />
+      </div>
+      <TrendingRank />
     </StTrending>
   );
 }
@@ -37,11 +41,23 @@ const StTrending = styled.section`
   border-radius: 1.2rem;
 
   & > h3 {
-      ${({ theme }) => theme.fonts.Head2};
+    margin-bottom: 1rem;
+    ${({ theme }) => theme.fonts.Head2};
 
     & > span {
         ${({ theme }) => theme.fonts.Head2};
         color : ${({ theme }) => theme.colors.main};
     }
+  }
+
+  & > div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2.4rem;
+    
+    & > time {
+    ${({ theme }) => theme.fonts.Body3};
+    color : ${({ theme }) => theme.colors.Gray5};
+  }
   }
 `;

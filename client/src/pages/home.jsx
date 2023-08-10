@@ -1,5 +1,5 @@
 import { BaseLayout } from '../layouts/BaseLayout';
-import { Trending } from '../components/Home';
+import { Trending } from '../components/Trending';
 
 export default function home() {
   return (

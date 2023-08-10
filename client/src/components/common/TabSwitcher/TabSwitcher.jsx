@@ -36,7 +36,7 @@ function TabSwitcher({
       <StTabContents className="tab-content">
         {tabList.map((tab) => (
           <div key={tab} style={{ display: activeTab === tab ? 'block' : 'none' }}>
-            {loading ? <p>로딩중</p> : <p>{tab}</p>}
+            {/* {loading ? <p>로딩중</p> : <p>{tab}</p>} */}
           </div>
         ))}
       </StTabContents>
