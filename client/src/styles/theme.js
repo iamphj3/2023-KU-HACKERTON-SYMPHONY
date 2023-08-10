@@ -62,7 +62,7 @@ const fonts = {
 
   Body3: css`
     font-family: Pretendard;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-style: normal;
     font-weight: 400;
     line-height: 150%;

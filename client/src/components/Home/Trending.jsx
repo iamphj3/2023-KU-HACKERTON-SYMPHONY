@@ -3,9 +3,9 @@ import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import { getToday } from '../../utils';
 
 const TRENDING_TABS = {
-  tabList: ['일별', '월별'],
-  selectedStyle: { color: `${({ theme }) => theme.colors.Black}` },
-  noSelectedStyle: { color: `${({ theme }) => theme.colors.Gray4}` },
+  tabList: ['일별', '주간별'],
+  selectedStyle: { color: '#212121' },
+  noSelectedStyle: { color: '#9090A0' },
   contents: [],
 };
 

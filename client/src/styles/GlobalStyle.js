@@ -134,9 +134,10 @@ export const reset = css`
     border-spacing: 0;
   }
   button {
-    cursor: pointer;
+    padding: 0;
     background: transparent;
     border: none;
+    cursor: pointer;
   }
 `;
 
@@ -149,7 +150,7 @@ ${reset}
   width: 100vw;
   height: 100vh;
   max-width: 43rem;
-  /* margin: 0 auto; */
+  margin: 0 auto;
   overflow-y: auto;
   
   background-color: ${({ theme }) => theme.colors.Gray1};;

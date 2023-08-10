@@ -47,7 +47,22 @@ function TabSwitcher({
 export default TabSwitcher;
 
 const StTabs = styled.div`
-  
+  display: flex;
+  gap: 1rem;
+
+  & > button {
+      ${({ theme }) => theme.fonts.Body3};
+
+    &:not(:last-child)::after {
+      content: '|';
+      padding-left: 1rem;
+      color: ${({ theme }) => theme.colors.Gray4};
+    }
+
+    &.active {
+      ${({ theme }) => theme.fonts.Body2};
+    }
+  }
 `;
 
 const StTabContents = styled.div`
