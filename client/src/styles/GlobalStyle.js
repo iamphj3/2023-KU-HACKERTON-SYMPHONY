@@ -146,9 +146,10 @@ ${reset}
 /* @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.6/dist/web/variable/pretendardvariable.css"); */
 
 #root, body, html,main {
-    /* width: 37.5rem; */
-    max-width: 37.5rem;
+    width: 100vw;
+    max-width: 43rem;
     height: 100vh;
+    
     margin: 0 auto;
     overflow-y: auto;
     -ms-overflow-style: none; /* 인터넷 익스플로러 */
