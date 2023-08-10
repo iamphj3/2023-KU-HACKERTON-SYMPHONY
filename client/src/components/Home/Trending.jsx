@@ -1,4 +1,5 @@
 import { styled } from 'styled-components';
+import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 
 export default function Trending() {
   const currentDate = new Date();
@@ -7,6 +8,13 @@ export default function Trending() {
   const day = currentDate.getDate().toString().padStart(2, '0');
   const today = `${year}.${month}.${day}`;
   const datetime = `${year}-${month}-${day}`;
+
+  const tabs = {
+    tabName: ['일별', '월별'],
+    selectedStyle: { color: `${({ theme }) => theme.colors.Black}` },
+    noSelectedStyle: { color: `${({ theme }) => theme.colors.Gray4}` },
+    contents: [],
+  };
 
   return (
     <StTrending>

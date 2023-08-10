@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
 
-function TabSwitcher({ tabs }) {
-  const [activeTab, setActiveTab] = useState(tabs[0].tabName);
+function TabSwitcher({
+  tabName, selectedStyle, noSelectedStyle,
+}) {
+  const [activeTab, setActiveTab] = useState(tabName[0]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-  }, []);
+  }, [activeTab]);
 
   const handleTabClick = (tab) => {
     if (activeTab !== tab) {
-      setLoading(false);
+      setLoading(true);
       setActiveTab(tab);
     }
   };
@@ -19,27 +21,22 @@ function TabSwitcher({ tabs }) {
   return (
     <section>
       <StTabs>
-        {tabs.map(({
-          tabName, tabStyle, selectedStyle, noSelectedStyle,
-        }) => (
+        {tabName.map(() => (
           <button
             type="button"
             key={tabName}
             className={activeTab === tabName ? 'active' : ''}
             onClick={() => handleTabClick(tabName)}
-            style={[
-              activeTab === tabName ? selectedStyle : noSelectedStyle,
-              tabStyle,
-            ]}
+            style={activeTab === tabName ? selectedStyle : noSelectedStyle}
           >
             {tabName}
           </button>
         ))}
       </StTabs>
       <StTabContents className="tab-content">
-        {tabs.map(({ tabName, contents }) => (
+        {tabName.map(() => (
           <div key={tabName} style={{ display: activeTab === tabName ? 'block' : 'none' }}>
-            {loading ? <p>로딩중</p> : contents}
+            {loading ? <p>로딩중</p> : <p>{tabName}</p>}
           </div>
         ))}
       </StTabContents>
