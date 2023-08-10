@@ -9,9 +9,7 @@ export default function Trending() {
 }
 
 const StTrending = styled.section`  
-  /* width: 90%; */
   height: 27.9rem;
-  /* padding: 0 1.5rem; */
 
   background-color: ${({ theme }) => theme.colors.White};
   border-radius: 1.2rem;
