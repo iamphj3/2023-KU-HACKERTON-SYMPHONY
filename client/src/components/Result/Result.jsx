@@ -27,9 +27,7 @@ export default function Result() {
   );
 }
 
-const StResult = styled.section`
-  margin-bottom: 12rem;
-  
+const StResult = styled.section`  
   & > div {
     display: flex;
     justify-content: space-between;

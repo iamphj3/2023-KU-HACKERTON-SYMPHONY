@@ -9,7 +9,7 @@ const colors = {
   Gray4: '#9090A0',
   Gray5: '#626273',
   Gray6: '#464656',
-  main: '#6E53FF',
+  main: '#597CFF',
 };
 
 const fonts = {
@@ -26,6 +26,14 @@ const fonts = {
     font-style: normal;
     font-weight: 700;
     line-height: 130%;
+    `,
+
+  Head3: css`
+    font-family: Pretendard;
+    font-size: 1.8rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%; 
     `,
 
   Title1: css`
@@ -81,7 +89,7 @@ const fonts = {
     font-size: 1.2rem;
     font-style: normal;
     font-weight: 400;
-    line-height: 130%;
+    line-height: 150%;
   `,
 
   Body6: css`

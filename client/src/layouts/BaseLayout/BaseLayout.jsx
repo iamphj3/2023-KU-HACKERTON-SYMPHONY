@@ -15,6 +15,7 @@ function BaseLayout({ children }) {
 export default BaseLayout;
 
 const StBaseLayout = styled.div`
+  margin-bottom: 12rem;
   padding: 0 1.5rem;
 `;
 
