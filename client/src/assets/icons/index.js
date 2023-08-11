@@ -1,3 +1,3 @@
-export { ReactComponent as IcLogo } from './IcLogo.svg';
-export { ReactComponent as IcLike } from './IcLike.svg';
-export { ReactComponent as IcComment } from './IcComment.svg';
+export { ReactComponent as IcLogo } from './ic_logo.svg';
+export { ReactComponent as IcHeart } from './ic_heart.svg';
+export { ReactComponent as IcComment } from './ic_comment.svg';

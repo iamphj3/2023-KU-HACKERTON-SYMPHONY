@@ -1,5 +1,5 @@
 import { styled } from 'styled-components';
-import { IcComment, IcLike } from '../../assets/icons';
+import { IcComment, IcHeart } from '../../assets/icons';
 
 export default function PostCard() {
   return (
@@ -7,7 +7,7 @@ export default function PostCard() {
       <img alt="post-thumbnail" src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FdmCqfe%2Fbtq4jsZ6exh%2FIq71TMudD3jkBLjqmanaRK%2Fimg.jpg" />
       <StInteractions>
         <div>
-          <IcLike />
+          <IcHeart />
           <span>30</span>
         </div>
         <div>

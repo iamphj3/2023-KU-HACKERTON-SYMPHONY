@@ -4,7 +4,7 @@ import PostResult from './PostResult';
 
 const RESULT_TABS = {
   tabList: ['최신순', '좋아요 순', '댓글 많은 순'],
-  selectedStyle: { color: '#6E53FF' },
+  selectedStyle: { color: '#597CFF' },
   noSelectedStyle: { color: '#626273' },
   contents: [],
 };
