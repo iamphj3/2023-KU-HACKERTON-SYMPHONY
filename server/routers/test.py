@@ -1,7 +1,8 @@
 from os import environ
-import time
+import time, json
 from dotenv import load_dotenv
-from instagrapi import Client 
+from instagrapi import Client
+from instagrapi.types import Media 
 from fastapi import APIRouter
 
 from models import get_db
@@ -31,7 +32,10 @@ cl.get_timeline_feed()
 def hashtag_list_v1(tag: str, amount: int):
     start = time.time()
     medias = cl.hashtag_medias_top_v1(tag, amount=amount)
+    print(medias[0])
+    print(medias)
     print("amount"+str(amount)+" timetotal: ", time.time() - start)
+    print(type(medias))
     return medias[0].dict()
 
 @router.get("/list/a1")
@@ -45,3 +49,21 @@ def hashtag_list_a1(tag: str, amount: int):
 async def create_test():
     result = await db["temp"].insert_one({"test":"test"})
     print(result)
+
+@router.post("/list/create")
+async def create_v1(tag: str, amount: int):
+    start = time.time()
+    medias = cl.hashtag_medias_top_v1(tag, amount=amount)
+    new_data = []
+    for media in medias:
+        mtemp = json.dumps(media.__dict__, default=str)
+        new_data.append(json.loads(mtemp))
+    result = await db["temp"].insert_many(new_data)
+    print("amount"+str(amount)+" timetotal: ", time.time() - start)
+    return result
+
+@router.get("/user")
+async def get_user():
+    cursor = db["temp"].find()
+    return cursor.to_list()
+
