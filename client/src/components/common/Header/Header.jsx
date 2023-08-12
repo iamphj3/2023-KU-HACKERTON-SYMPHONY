@@ -1,11 +1,11 @@
 import { styled } from 'styled-components';
-import { IcLogo } from '../../../assets/icons';
+import { IcInstagLogo } from '../../../assets/icons';
 
 export default function Header() {
   return (
     <StHeader>
       <h1 className="sr-only">insTAG</h1>
-      <IcLogo />
+      <IcInstagLogo />
     </StHeader>
   );
 }

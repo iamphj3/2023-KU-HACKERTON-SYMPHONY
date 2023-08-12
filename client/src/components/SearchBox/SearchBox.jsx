@@ -1,8 +1,11 @@
 import { styled } from 'styled-components';
 import { useState } from 'react';
-import { IcSearch, IcExpand } from '../../assets/icons';
+import {
+  IcSearch, IcArrowDown, IcToggleOn, IcToggleOff,
+} from '../../assets/icons';
 
 const SEARCH_TABS = ['해시태그 검색', '이미지 검색'];
+const PERIODS = ['전체', '1주', '1개월', '3개월', '6개월', '1년'];
 
 export default function SearchBox() {
   const [activeTab, setActiveTab] = useState(SEARCH_TABS[0]);
@@ -42,7 +45,7 @@ export default function SearchBox() {
               <IcSearch />
             </button>
           </StSearchInput>
-          <div>
+          <StInfo>
             <p>* 여러개 입력 시 스페이스, 엔터로 구분</p>
             <StFilterBtn
               type="button"
@@ -51,9 +54,21 @@ export default function SearchBox() {
               isExpanded={isExpanded}
             >
               상세 필터
-              <IcExpand />
+              <IcArrowDown />
             </StFilterBtn>
-          </div>
+          </StInfo>
+          <StDetailFilter>
+            <p>기간</p>
+            <ul>
+              {PERIODS.map((period) => (
+                <li key={period}>{period}</li>
+              ))}
+            </ul>
+            <StAdToggle>
+              <p>광고 해시태그 필터링</p>
+              <IcToggleOn />
+            </StAdToggle>
+          </StDetailFilter>
         </StInputWrapper>
       </StTabBar>
     </StSearchBox>
@@ -90,8 +105,9 @@ const StTabBtn = styled.button`
 
 const StInputWrapper = styled.div`
   padding: 2rem 1.6rem;
+`;
 
-  & > div{
+const StInfo = styled.div`
     display: flex;
     justify-content: space-between;
 
@@ -99,7 +115,6 @@ const StInputWrapper = styled.div`
       color : ${({ theme }) => theme.colors.Gray5};
       ${({ theme }) => theme.fonts.Body5};
     }
-  }
 `;
 
 const StSearchInput = styled.div`
@@ -138,4 +153,34 @@ const StFilterBtn = styled.button`
   &.expanded > svg {
     transform: rotate(180deg); 
   }
+`;
+
+const StDetailFilter = styled.div`
+  display: flex;
+  flex-direction: column;
+  
+  margin-top: 1.75rem;
+
+  & > p {
+    margin-bottom: 1.2rem;
+    ${({ theme }) => theme.fonts.Title2};
+  }
+  & > ul {
+    display: flex;
+    gap: 1.4rem;
+
+    & > li {
+      ${({ theme }) => theme.fonts.Body4};
+      
+      &::before {
+        content: '●';
+        margin-right: 0.5rem;
+        color: ${({ theme }) => theme.colors.Gray5}
+      }
+    }
+  }
+`;
+
+const StAdToggle = styled.div`
+  
 `;

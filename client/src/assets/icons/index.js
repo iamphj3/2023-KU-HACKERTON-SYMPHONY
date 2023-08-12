@@ -1,5 +1,10 @@
-export { ReactComponent as IcLogo } from './ic_logo.svg';
+export { ReactComponent as IcInstagLogo } from './ic_instag_logo.svg';
 export { ReactComponent as IcHeart } from './ic_heart.svg';
 export { ReactComponent as IcComment } from './ic_comment.svg';
 export { ReactComponent as IcSearch } from './ic_search.svg';
-export { ReactComponent as IcExpand } from './ic_expand.svg';
+export { ReactComponent as IcArrowDown } from './ic_arrow_down.svg';
+export { ReactComponent as IcCancel } from './ic_cancel.svg';
+export { ReactComponent as IcToggleOff } from './ic_toggle_off.svg';
+export { ReactComponent as IcToggleOn } from './ic_toggle_on.svg';
+export { ReactComponent as IcUploadPurple } from './ic_upload_purple.svg';
+export { ReactComponent as IcUploadWhite } from './ic_upload_white.svg';
