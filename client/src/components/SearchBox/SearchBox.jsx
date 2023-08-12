@@ -9,7 +9,9 @@ const PERIODS = ['전체', '1주', '1개월', '3개월', '6개월', '1년'];
 
 export default function SearchBox() {
   const [activeTab, setActiveTab] = useState(SEARCH_TABS[0]);
+  const [selectedPeriod, setselectedPeriod] = useState(PERIODS[0]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isAdFiltered, setIsAdFiltered] = useState(true);
 
   const handleTabClick = (tab) => {
     if (activeTab !== tab) {
@@ -23,6 +25,10 @@ export default function SearchBox() {
 
   const handleFilter = () => {
     setIsExpanded((prev) => !prev);
+  };
+
+  const handleToggle = () => {
+    setIsAdFiltered((prev) => !prev);
   };
 
   return (
@@ -46,7 +52,7 @@ export default function SearchBox() {
             </button>
           </StSearchInput>
           <StInfo>
-            <p>* 여러개 입력 시 스페이스, 엔터로 구분</p>
+            <p>* 여러개 입력 시 스페이스 혹은 엔터로 구분</p>
             <StFilterBtn
               type="button"
               onClick={handleFilter}
@@ -57,16 +63,35 @@ export default function SearchBox() {
               <IcArrowDown />
             </StFilterBtn>
           </StInfo>
-          <StDetailFilter>
+          <StDetailFilter className={isExpanded ? 'expanded' : ''}>
             <p>기간</p>
             <ul>
               {PERIODS.map((period) => (
-                <li key={period}>{period}</li>
+                <li
+                  key={period}
+                  className={selectedPeriod === period ? 'selected' : ''}
+                  selected={selectedPeriod === period}
+                  onClick={() => setselectedPeriod(period)}
+                  role="presentation"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setselectedPeriod(period);
+                    }
+                  }}
+                >
+                  {period}
+
+                </li>
               ))}
             </ul>
             <StAdToggle>
               <p>광고 해시태그 필터링</p>
-              <IcToggleOn />
+              <button
+                type="button"
+                onClick={handleToggle}
+              >
+                {isAdFiltered ? <IcToggleOn /> : <IcToggleOff />}
+              </button>
             </StAdToggle>
           </StDetailFilter>
         </StInputWrapper>
@@ -144,7 +169,6 @@ const StFilterBtn = styled.button`
   display: flex;
   align-items: center;
 
-
   & > svg {
     transform: rotate(360deg); 
     transition: transform 0.3s ease-in-out; 
@@ -156,11 +180,14 @@ const StFilterBtn = styled.button`
 `;
 
 const StDetailFilter = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: none;
   
   margin-top: 1.75rem;
-
+  
+  &.expanded {
+    display: flex;
+    flex-direction: column;
+  }
   & > p {
     margin-bottom: 1.2rem;
     ${({ theme }) => theme.fonts.Title2};
@@ -170,17 +197,35 @@ const StDetailFilter = styled.div`
     gap: 1.4rem;
 
     & > li {
+      color: ${({ selected, theme }) => (selected ? theme.colors.main : theme.colors.Gray5)};
       ${({ theme }) => theme.fonts.Body4};
+  
+      cursor: pointer;
       
       &::before {
         content: '●';
         margin-right: 0.5rem;
         color: ${({ theme }) => theme.colors.Gray5}
       }
+      &.selected {
+        color: ${({ theme }) => (theme.colors.main)};
+
+        &::before {
+          color: ${({ theme }) => theme.colors.main};
+        }
+      }
     }
   }
 `;
 
 const StAdToggle = styled.div`
-  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-top: 1.6rem;
+
+  & > p {
+    ${({ theme }) => theme.fonts.Title2};
+  }
 `;
