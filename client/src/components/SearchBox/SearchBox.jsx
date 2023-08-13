@@ -46,12 +46,7 @@ export default function SearchBox() {
           </StSearchInput>
           <StInfo>
             <p>* 여러개 입력 시 스페이스 혹은 엔터로 구분</p>
-            <StFilterBtn
-              type="button"
-              onClick={handleFilter}
-              className={isExpanded ? 'expanded' : ''}
-              isExpanded={isExpanded}
-            >
+            <StFilterBtn type="button" onClick={handleFilter} className={isExpanded ? 'expanded' : ''} isExpanded={isExpanded}>
               상세 필터
               <IcArrowDown />
             </StFilterBtn>
@@ -97,10 +92,14 @@ const StSearchBox = styled.section`
   background-color: ${({ theme }) => theme.colors.White};
 `;
 
-const StTabBar = styled.div``;
+const StTabBar = styled.div`
+  margin: 0;
+  padding: 0;
+`;
 
 const StTabBtn = styled.button`
   width: 50%;
+  margin: 0;
   padding: 1.4rem 0 0.9rem 0;
 
   ${({ theme }) => theme.fonts.Title2};
@@ -122,6 +121,7 @@ const StInputWrapper = styled.div`
 const StInfo = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
 
   & > p {
     color: ${({ theme }) => theme.colors.Gray5};
@@ -156,6 +156,9 @@ const StFilterBtn = styled.button`
   display: flex;
   align-items: center;
 
+  color: ${({ theme }) => theme.colors.Gray5};
+  ${({ theme }) => theme.fonts.Body2};
+
   & > svg {
     transform: rotate(360deg);
     transition: transform 0.3s ease-in-out;
@@ -181,6 +184,7 @@ const StDetailFilter = styled.div`
   }
   & > ul {
     display: flex;
+    justify-content: space-around;
     gap: 1.4rem;
 
     & > li {
