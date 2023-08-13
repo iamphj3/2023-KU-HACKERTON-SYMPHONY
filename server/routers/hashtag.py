@@ -40,20 +40,20 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
 
     amount = 20
     collection_names = await db.list_collection_names()
-    for idx, tag in enumerate(hashtags):
+    for tag in hashtags:
         #검색량 저장
         medias = cl.hashtag_medias_top_v1(tag, amount=amount)
-        #if not(tag in collection_names): #검색 기록 확인
-        new_data = []
-        for media in medias:
-            mtemp = json.dumps(media.__dict__, default=str)
-            new_data.append(json.loads(mtemp))
-        name = ""+tag+str(idx)
-        result = await db[name].insert_many(new_data)
+        if not(tag in collection_names): #검색 기록 확인
+            new_data = []
+            for media in medias:
+                mtemp = json.dumps(media.__dict__, default=str)
+                new_data.append(json.loads(mtemp))
+            result = await db[tag].insert_many(new_data)
 
     #조인 테이블 생성
     await tags_union(tag_id, hashtags)
 
+#합집합 
 async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
     #collection 합치기
     pipeline = []
@@ -84,12 +84,41 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
 
     #중복 제거
     for doc in duplicates:
-        print(doc["duplicates"])
         duplicate_ids = doc["duplicates"]
         del duplicate_ids[0]
-        print(duplicate_ids+"\n")
         db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
  
+@router.get("/")
+async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool):
+    res = list()
+    amount = 20
+    #tag_obj = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
+    #hashtags = tag_obj.get("tags")
+    
+    query = { "_id": { "$gt": ObjectId(lastId) } }
+    cursor = db[tag_id].find(query)
+    docs = await cursor.to_list(length=amount)
+    if len(docs)==amount: # 마지막 요청인지 
+        res.append({"isFinal":False})
+    else:
+        res.append({"isFinal":True}) 
+    
+    results = list()
+    for doc in docs:
+        new_doc = list()
+        new_doc.append({"id":str(doc["_id"])})
+        new_doc.append({"date":doc["taken_at"]})
+        new_doc.append({"user_name":doc["user"]})
+        new_doc.append({"image_url":doc["thumbnail_url"]})
+        new_doc.append({"text":doc["caption_text"]})
+        new_doc.append({"like_count":doc["like_count"]})
+        new_doc.append({"comment_count":doc["comment_count"]})
+        results.append(new_doc)
+    res.append({"results":results})
+    return res
+    #기간 정렬
+    #광고 제거 
+
 @router.get("/hashtag/id")
 async def get_tag_id(hashtags : List[str] = Query(None)):
     find_tags = list()
@@ -100,19 +129,9 @@ async def get_tag_id(hashtags : List[str] = Query(None)):
     tag_obj = await db["tagsId"].find_one({"tags":find_tags})
     return str(tag_obj.get("_id"))
 
-@router.get("/")
-async def get_hashtags(tag_id:str, lastId:int, 
-            period:int, isAds:bool):
-    tag_obj = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
-    hashtags = tag_obj.get("tags")
-    
-    
-
-        
-    #response
-    #period
-    #Ads
-    #result
+@router.post("/sort")
+async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
+    return     
 
 @router.get("/top")
 async def get_top():
