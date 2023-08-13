@@ -89,9 +89,8 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
         db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
  
 @router.get("/")
-async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool):
+async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:int):
     res = list()
-    amount = 20
     #tag_obj = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
     #hashtags = tag_obj.get("tags")
     
@@ -105,14 +104,14 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool):
     
     results = list()
     for doc in docs:
-        new_doc = list()
-        new_doc.append({"id":str(doc["_id"])})
-        new_doc.append({"date":doc["taken_at"]})
-        new_doc.append({"user_name":doc["user"]})
-        new_doc.append({"image_url":doc["thumbnail_url"]})
-        new_doc.append({"text":doc["caption_text"]})
-        new_doc.append({"like_count":doc["like_count"]})
-        new_doc.append({"comment_count":doc["comment_count"]})
+        new_doc = {}
+        new_doc["id"] = str(doc["_id"])
+        new_doc["date"] = doc["taken_at"]
+        new_doc["user_name"] = doc["user"]
+        new_doc["image_url"] = doc["thumbnail_url"]
+        new_doc["text"] = doc["caption_text"]
+        new_doc["like_count"] = doc["like_count"]
+        new_doc["commet"] = doc["comment_count"]
         results.append(new_doc)
     res.append({"results":results})
     return res
