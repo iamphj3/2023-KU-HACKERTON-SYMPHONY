@@ -1,8 +1,6 @@
 import { styled } from 'styled-components';
 import { useState } from 'react';
-import {
-  IcSearch, IcArrowDown, IcToggleOn, IcToggleOff,
-} from '../../assets/icons';
+import { IcSearch, IcArrowDown, IcToggleOn, IcToggleOff } from '../../assets/icons';
 
 const SEARCH_TABS = ['해시태그 검색', '이미지 검색'];
 const PERIODS = ['전체', '1주', '1개월', '3개월', '6개월', '1년'];
@@ -19,9 +17,7 @@ export default function SearchBox() {
     }
   };
 
-  const handleSearch = () => {
-
-  };
+  const handleSearch = () => {};
 
   const handleFilter = () => {
     setIsExpanded((prev) => !prev);
@@ -35,12 +31,7 @@ export default function SearchBox() {
     <StSearchBox>
       <StTabBar>
         {SEARCH_TABS.map((tab) => (
-          <StTabBtn
-            type="button"
-            key={tab}
-            isActive={activeTab === tab}
-            onClick={() => handleTabClick(tab)}
-          >
+          <StTabBtn type="button" key={tab} isActive={activeTab === tab} onClick={() => handleTabClick(tab)}>
             {tab}
           </StTabBtn>
         ))}
@@ -80,16 +71,12 @@ export default function SearchBox() {
                   }}
                 >
                   {period}
-
                 </li>
               ))}
             </ul>
             <StAdToggle>
               <p>광고 해시태그 필터링</p>
-              <button
-                type="button"
-                onClick={handleToggle}
-              >
+              <button type="button" onClick={handleToggle}>
                 {isAdFiltered ? <IcToggleOn /> : <IcToggleOff />}
               </button>
             </StAdToggle>
@@ -105,12 +92,10 @@ const StSearchBox = styled.section`
   margin-bottom: 2rem;
 
   border-radius: 1.2rem;
-  background-color : ${({ theme }) => theme.colors.White};;
+  background-color: ${({ theme }) => theme.colors.White};
 `;
 
-const StTabBar = styled.div`
-  
-`;
+const StTabBar = styled.div``;
 
 const StTabBtn = styled.button`
   width: 50%;
@@ -119,7 +104,7 @@ const StTabBtn = styled.button`
   ${({ theme }) => theme.fonts.Title2};
   color: ${({ isActive, theme }) => (isActive ? theme.colors.main : theme.colors.Gray5)};
   background-color: ${({ isActive, theme }) => (isActive ? theme.colors.White : theme.colors.Gray2)};
-  
+
   &:first-child {
     border-radius: 1.2rem 0rem 0rem 0rem;
   }
@@ -133,13 +118,13 @@ const StInputWrapper = styled.div`
 `;
 
 const StInfo = styled.div`
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 
-    & > p {
-      color : ${({ theme }) => theme.colors.Gray5};
-      ${({ theme }) => theme.fonts.Body5};
-    }
+  & > p {
+    color: ${({ theme }) => theme.colors.Gray5};
+    ${({ theme }) => theme.fonts.Body5};
+  }
 `;
 
 const StSearchInput = styled.div`
@@ -149,7 +134,7 @@ const StSearchInput = styled.div`
   & > input {
     width: 100%;
     padding: 1.2rem 1.6rem 0.9rem 1.6rem;
-    
+
     box-sizing: border-box; // padding이 너비에 영향 미치지 않게
     border: none;
     border-radius: 1rem;
@@ -170,20 +155,20 @@ const StFilterBtn = styled.button`
   align-items: center;
 
   & > svg {
-    transform: rotate(360deg); 
-    transition: transform 0.3s ease-in-out; 
+    transform: rotate(360deg);
+    transition: transform 0.3s ease-in-out;
   }
 
   &.expanded > svg {
-    transform: rotate(180deg); 
+    transform: rotate(180deg);
   }
 `;
 
 const StDetailFilter = styled.div`
   display: none;
-  
+
   margin-top: 1.75rem;
-  
+
   &.expanded {
     display: flex;
     flex-direction: column;
@@ -199,16 +184,16 @@ const StDetailFilter = styled.div`
     & > li {
       color: ${({ selected, theme }) => (selected ? theme.colors.main : theme.colors.Gray5)};
       ${({ theme }) => theme.fonts.Body4};
-  
+
       cursor: pointer;
-      
+
       &::before {
         content: '●';
         margin-right: 0.5rem;
-        color: ${({ theme }) => theme.colors.Gray5}
+        color: ${({ theme }) => theme.colors.Gray5};
       }
       &.selected {
-        color: ${({ theme }) => (theme.colors.main)};
+        color: ${({ theme }) => theme.colors.main};
 
         &::before {
           color: ${({ theme }) => theme.colors.main};
