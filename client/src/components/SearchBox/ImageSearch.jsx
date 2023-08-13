@@ -1,11 +1,15 @@
 import { styled } from 'styled-components';
 import { useState, useEffect, useRef } from 'react';
+import { useRecoilState } from 'recoil';
 import { IcUploadPurple, IcUploadWhite } from '../../assets/icons';
+import { UploadedImage } from '../../recoil/atom';
 
 export default function ImageSearch() {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useRecoilState(UploadedImage);
   const imageInputRef = useRef(null);
   const [URLThumbnail, setURLThumbnail] = useState(null);
+
+  console.log(selectedImage);
 
   const handleFileSelect = (e) => {
     const { files } = e.target;
