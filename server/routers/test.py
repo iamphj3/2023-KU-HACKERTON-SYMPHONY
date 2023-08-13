@@ -3,8 +3,8 @@ import time, json
 from dotenv import load_dotenv
 from instagrapi import Client
 from instagrapi.types import Media 
-from fastapi import APIRouter
-
+from fastapi import APIRouter, Query
+from typing import List
 from models import get_db
 
 db = get_db()
@@ -66,4 +66,49 @@ async def create_v1(tag: str, amount: int):
 async def get_user():
     cursor = db["temp"].find()
     return cursor.to_list()
+
+@router.post("/union")
+async def test_union(hashtags : List[str] = Query(None)):
+    pipeline = []
+    for idx, tag in enumerate(hashtags):
+        if(idx!=0):
+            pipeline.append({
+                "$unionWith":{
+                    "coll": tag
+                }
+            })
+    pipeline.append({"$out":"test"})
+    cursor = db[hashtags[0]].aggregate(pipeline)
+    await cursor.to_list(length=None)
+
+    #중복 제거
+    pipeline2 = [
+        {
+            "$group": {
+                "_id": "$pk",  # 중복을 확인하려는 필드로 수정
+                "count": {"$sum": 1},
+                "duplicates": {"$addToSet": "$_id"}
+            }
+        },
+        {
+            "$match": {
+                "count": {"$gt": 1}
+            }
+        }
+    ]
+
+    cursor = db["test"].aggregate(pipeline2)
+    duplicates = await cursor.to_list(length=None)
+    print(duplicates)
+    for doc in duplicates:
+        print(doc["duplicates"])
+        duplicate_ids = doc["duplicates"]
+        del duplicate_ids[0]
+        db["test"].delete_many({"_id": {"$in": duplicate_ids}})
+
+    #pipeline.append({"$group":{"_id":"$pk"}})
+    #print(pipeline)
+    #cursor = db[hashtags[0]].aggregate(pipeline)
+    #result = await cursor.to_list(length=None)
+    #print(result)
 
