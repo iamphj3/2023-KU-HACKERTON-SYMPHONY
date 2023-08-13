@@ -6,7 +6,7 @@ from instagrapi.types import Media
 from fastapi import APIRouter, Query
 from typing import List
 from bson.objectid import ObjectId
-
+from datetime import datetime, timedelta
 from models import get_db
 db = get_db()
 
@@ -46,8 +46,16 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
         if not(tag in collection_names): #검색 기록 확인
             new_data = []
             for media in medias:
-                mtemp = json.dumps(media.__dict__, default=str)
-                new_data.append(json.loads(mtemp))
+                doc = media.dict()
+                new_doc = {}
+                new_doc["pk"] = str(doc["pk"])
+                new_doc["date"] = doc["taken_at"]
+                new_doc["user_name"] = doc["user"]["username"]
+                new_doc["image_url"] = doc["thumbnail_url"]
+                new_doc["text"] = doc["caption_text"]
+                new_doc["like_count"] = doc["like_count"]
+                new_doc["commet"] = doc["comment_count"]
+                new_data.append(new_doc)
             result = await db[tag].insert_many(new_data)
 
     #조인 테이블 생성
@@ -93,35 +101,48 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
     res = list()
     #tag_obj = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
     #hashtags = tag_obj.get("tags")
-    
-    query = { "_id": { "$gt": ObjectId(lastId) } }
+    query = {}
+    query["_id"] = { "$gt": ObjectId(lastId) }
+
+    #기간 정렬
+    current_date = datetime.now()
+    days_ago = current_date - timedelta(days=period)
+    print(days_ago)
+    if period !=0:
+        query["date"] = {
+            "$gte": str(days_ago),
+            "$lte": str(current_date)
+        }   
+    print(query)
+    #광고 제거 
+
     cursor = db[tag_id].find(query)
     docs = await cursor.to_list(length=amount)
 
     final_doc = await db[tag_id].find_one(sort=[('_id', -1)])
     
-    if docs[len(docs)-1]["id"]==final_doc["id"]: # 마지막 요청인지 
+    if(len(docs)==0): return res
+
+    if docs[len(docs)-1]["pk"]==final_doc["pk"]: # 마지막 요청인지 
         res.append({"isFinal":True})
     else:
         res.append({"isFinal":False}) 
     
     results = list()
     for doc in docs:
-        new_doc = {}
-        new_doc["id"] = str(doc["_id"])
-        new_doc["date"] = doc["taken_at"]
-        user = doc["user"].split()
-        user_name = user[1].split('=')
-        new_doc["user_name"] = user_name[1].replace('\'','')
-        new_doc["image_url"] = doc["thumbnail_url"]
-        new_doc["text"] = doc["caption_text"]
-        new_doc["like_count"] = doc["like_count"]
-        new_doc["commet"] = doc["comment_count"]
-        results.append(new_doc)
-    res.append({"results":results})
+
+        # new_doc = {}
+        doc["_id"] = str(doc["_id"])
+        # new_doc["date"] = doc["date"]
+        # new_doc["user_name"] = doc["user_name"]
+        # new_doc["image_url"] = doc["thumbnail_url"]
+        # new_doc["text"] = doc["caption_text"]
+        # new_doc["like_count"] = doc["like_count"]
+        # new_doc["commet"] = doc["comment_count"]
+        #results.append(json.loads(doc, default=str))
+    print(docs)
+    res.append({"results":docs})
     return res
-    #기간 정렬
-    #광고 제거 
 
 @router.get("/hashtag/id")
 async def get_tag_id(hashtags : List[str] = Query(None)):
