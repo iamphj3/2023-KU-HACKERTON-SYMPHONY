@@ -18,8 +18,10 @@ export default function ImageSearch() {
     imageInputRef.current?.click();
   };
 
-  const handleDeleteImage = () => {
+  const handleDeleteImage = (e) => {
     setSelectedImage(null);
+    setURLThumbnail(null);
+    handleFileBtnClick(e);
   };
 
   const createImageURL = (file) =>
