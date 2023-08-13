@@ -39,33 +39,56 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
     tag_id = str(result.inserted_id)
 
     amount = 20
-    # for tag in hashtags:
-    #     #검색량 저장
-    #     medias = cl.hashtag_medias_top_v1(tag, amount=amount)
-    #     new_data = []
-    #     for media in medias:
-    #         mtemp = json.dumps(media.__dict__, default=str)
-    #         new_data.append(json.loads(mtemp))
-    #     result = await db[tag].insert_many(new_data)
+    collection_names = await db.list_collection_names()
+    for idx, tag in enumerate(hashtags):
+        #검색량 저장
+        medias = cl.hashtag_medias_top_v1(tag, amount=amount)
+        #if not(tag in collection_names): #검색 기록 확인
+        new_data = []
+        for media in medias:
+            mtemp = json.dumps(media.__dict__, default=str)
+            new_data.append(json.loads(mtemp))
+        name = ""+tag+str(idx)
+        result = await db[name].insert_many(new_data)
 
-    #교집합 찾기 
+    #조인 테이블 생성
+    await tags_union(tag_id, hashtags)
+
+async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
+    #collection 합치기
     pipeline = []
     for idx, tag in enumerate(hashtags):
         if(idx!=0):
             pipeline.append({
-                "$lookup":{
-                    "from": tag,
-                    "localField": 'pk', 
-                    "foreignField": 'pk', 
-                    "as": "joined"
+                "$unionWith":{
+                    "coll": tag
                 }
             })
-    pipeline.append({"$match":{"joined":{"$ne": []}}})
+    pipeline.append({"$out":tag_id})
     cursor = db[hashtags[0]].aggregate(pipeline)
-    inner = await cursor.to_list(length=None)
+    await cursor.to_list(length=None)
 
-    #조인 테이블 생성
-    
+    #중복 찾기
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$pk",  # 중복을 확인하려는 필드로 수정
+                "count": {"$sum": 1},
+                "duplicates": {"$addToSet": "$_id"}
+            }
+        },
+        {"$match": {"count": {"$gt": 1}}}
+    ]
+    cursor = db[tag_id].aggregate(pipeline)
+    duplicates = await cursor.to_list(length=None)
+
+    #중복 제거
+    for doc in duplicates:
+        print(doc["duplicates"])
+        duplicate_ids = doc["duplicates"]
+        del duplicate_ids[0]
+        print(duplicate_ids+"\n")
+        db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
  
 @router.get("/hashtag/id")
 async def get_tag_id(hashtags : List[str] = Query(None)):

@@ -69,6 +69,7 @@ async def get_user():
 
 @router.post("/union")
 async def test_union(hashtags : List[str] = Query(None)):
+    #collection 합치기
     pipeline = []
     for idx, tag in enumerate(hashtags):
         if(idx!=0):
@@ -82,7 +83,7 @@ async def test_union(hashtags : List[str] = Query(None)):
     await cursor.to_list(length=None)
 
     #중복 제거
-    pipeline2 = [
+    pipeline = [
         {
             "$group": {
                 "_id": "$pk",  # 중복을 확인하려는 필드로 수정
@@ -90,14 +91,10 @@ async def test_union(hashtags : List[str] = Query(None)):
                 "duplicates": {"$addToSet": "$_id"}
             }
         },
-        {
-            "$match": {
-                "count": {"$gt": 1}
-            }
-        }
+        {"$match": {"count": {"$gt": 1}}}
     ]
 
-    cursor = db["test"].aggregate(pipeline2)
+    cursor = db["test"].aggregate(pipeline)
     duplicates = await cursor.to_list(length=None)
     print(duplicates)
     for doc in duplicates:
@@ -106,9 +103,4 @@ async def test_union(hashtags : List[str] = Query(None)):
         del duplicate_ids[0]
         db["test"].delete_many({"_id": {"$in": duplicate_ids}})
 
-    #pipeline.append({"$group":{"_id":"$pk"}})
-    #print(pipeline)
-    #cursor = db[hashtags[0]].aggregate(pipeline)
-    #result = await cursor.to_list(length=None)
-    #print(result)
 
