@@ -3,7 +3,7 @@ import time, json
 from dotenv import load_dotenv
 from instagrapi import Client
 from instagrapi.types import Media 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, status
 from typing import List
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
@@ -27,7 +27,7 @@ cl = Client()
 cl.load_settings('./tmp/dump.json')
 cl.get_timeline_feed()
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_hashtags(hashtags : List[str] = Query(None)):
     #top 기록 
     for tag in hashtags:
@@ -107,7 +107,7 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
  
 @router.get("/")
 async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:int):
-    res = list()
+    res = {}
     query = {}
     query["_id"] = { "$gt": ObjectId(lastId) }
 
@@ -121,6 +121,8 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
             "$lte": current_date
         }   
     #광고 제거 
+    if isAds:
+        query["isAds"] = {"$ne":True}
 
     cursor = db[tag_id].find(query)
     docs = await cursor.to_list(length=amount)
@@ -130,17 +132,17 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
     if(len(docs)==0): return res
 
     if docs[len(docs)-1]["pk"]==final_doc["pk"]: # 마지막 요청인지 
-        res.append({"isFinal":True})
+        res["isFinal"] = True
     else:
-        res.append({"isFinal":False}) 
+        res["isFinal"] = False 
     
     results = list()
     for doc in docs:
         doc["id"] = str(doc["_id"])
         doc.pop("_id" ,None)
 
-    res.append({"results":docs})
-    return res
+    res["results"] = docs
+    return {"data" : res}
 
 @router.get("/hashtag/id")
 async def get_tag_id(hashtags : List[str] = Query(None)):
@@ -150,9 +152,9 @@ async def get_tag_id(hashtags : List[str] = Query(None)):
     find_tags.sort()
 
     tag_obj = await db["tagsId"].find_one({"tags":find_tags})
-    return str(tag_obj.get("_id"))
+    return {"data": {"tag_id" : str(tag_obj.get("_id"))}}
 
-@router.post("/sort")
+@router.post("/sort", status_code=status.HTTP_201_CREATED)
 async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
     await db["tagsId"].find_one_and_update({"_id":ObjectId(tag_id)},{"$set":{"isLast":isLast,"isLike":isLike,"isComment":isComment}})
      
