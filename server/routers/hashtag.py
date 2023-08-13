@@ -97,10 +97,13 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
     query = { "_id": { "$gt": ObjectId(lastId) } }
     cursor = db[tag_id].find(query)
     docs = await cursor.to_list(length=amount)
-    if len(docs)==amount: # 마지막 요청인지 
-        res.append({"isFinal":False})
+
+    final_doc = await db[tag_id].find_one(sort=[('_id', -1)])
+    
+    if docs[len(docs)-1]["id"]==final_doc["id"]: # 마지막 요청인지 
+        res.append({"isFinal":True})
     else:
-        res.append({"isFinal":True}) 
+        res.append({"isFinal":False}) 
     
     results = list()
     for doc in docs:
