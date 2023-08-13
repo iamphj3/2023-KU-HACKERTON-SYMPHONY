@@ -9,8 +9,6 @@ export default function ImageSearch() {
   const imageInputRef = useRef(null);
   const [URLThumbnail, setURLThumbnail] = useState(null);
 
-  console.log(selectedImage);
-
   const handleFileSelect = (e) => {
     const { files } = e.target;
     if (files && files.length > 0) {
