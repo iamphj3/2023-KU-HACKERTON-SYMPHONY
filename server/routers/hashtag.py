@@ -5,6 +5,7 @@ from instagrapi import Client
 from instagrapi.types import Media 
 from fastapi import APIRouter, Query
 from typing import List
+from bson.objectid import ObjectId
 
 from models import get_db
 db = get_db()
@@ -26,50 +27,69 @@ cl = Client()
 cl.load_settings('./tmp/dump.json')
 cl.get_timeline_feed()
 
+@router.post("/")
+async def post_hashtags(hashtags : List[str] = Query(None)):
+    #top 기록 
+    for tag in hashtags:
+        await db["top"].find_one_and_update({"tag": tag}, {'$inc':{"cnt":1}}, upsert=True)
+    
+    #tag_id 저장
+    hashtags.sort()
+    result = await db["tagsId"].insert_one({"tags":hashtags}) 
+    tag_id = str(result.inserted_id)
+
+    amount = 20
+    # for tag in hashtags:
+    #     #검색량 저장
+    #     medias = cl.hashtag_medias_top_v1(tag, amount=amount)
+    #     new_data = []
+    #     for media in medias:
+    #         mtemp = json.dumps(media.__dict__, default=str)
+    #         new_data.append(json.loads(mtemp))
+    #     result = await db[tag].insert_many(new_data)
+
+    #교집합 찾기 
+    pipeline = []
+    for idx, tag in enumerate(hashtags):
+        if(idx!=0):
+            pipeline.append({
+                "$lookup":{
+                    "from": tag,
+                    "localField": 'pk', 
+                    "foreignField": 'pk', 
+                    "as": "joined"
+                }
+            })
+    pipeline.append({"$match":{"joined":{"$ne": []}}})
+    cursor = db[hashtags[0]].aggregate(pipeline)
+    inner = await cursor.to_list(length=None)
+
+    #조인 테이블 생성
+    
+ 
+@router.get("/hashtag/id")
+async def get_tag_id(hashtags : List[str] = Query(None)):
+    find_tags = list()
+    for tag in hashtags:
+        find_tags.append(tag)
+    find_tags.sort()
+
+    tag_obj = await db["tagsId"].find_one({"tags":find_tags})
+    return str(tag_obj.get("_id"))
+
 @router.get("/")
-async def get_hashtags(tag_id:int, lastId:int, 
-            period:int, isAds:bool, isScroll: bool, 
-            hashtags : List[str] = Query(None)):
-    if(not isScroll): #첫 요청
-        amount = 20
-        for tag in hashtags:
-            #검색량 저장
-            await db["top"].find_one_and_update({"tag": tag}, {'$inc':{"cnt":1}}, upsert=True)
-        #     medias = cl.hashtag_medias_top_v1(tag, amount=amount)
-        #     new_data = []
-        #     for media in medias:
-        #         mtemp = json.dumps(media.__dict__, default=str)
-        #         new_data.append(json.loads(mtemp))
-        #     result = await db[tag].insert_many(new_data)
-        # #조인 테이블 생성
-        # pipeline = [
-        #     {
-        #         "$lookup":{
-        #             "from": hashtags[1],
-        #             "localField": 'pk', 
-        #             "foreignField": 'pk', 
-        #             "as": 'joinedResult'
-        #         }
-        #     },
-        #     {
-        #         "$match": {
-        #             "joinedResult": {"$ne": []}
-        #         }
-        #     },
-        #     {
-        #         "$out":"joinedResult"
-        #     }
-        # ]
-        # cursor = db[hashtags[0]].aggregate(pipeline)
-        # await cursor.to_list(length=None)
-        #print(result)
+async def get_hashtags(tag_id:str, lastId:int, 
+            period:int, isAds:bool):
+    tag_obj = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
+    hashtags = tag_obj.get("tags")
+    
+    
 
         
     #response
     #period
     #Ads
     #result
-    #return 
 
 @router.get("/top")
 async def get_top():
