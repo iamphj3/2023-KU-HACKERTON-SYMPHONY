@@ -33,6 +33,8 @@ def hashtag_list_v1(tag: str, amount: int):
     start = time.time()
     medias = cl.hashtag_medias_top_v1(tag, amount=amount)
     print(medias[0])
+    mtemp = json.dumps(medias[0].__dict__, default=str)
+    print(mtemp)
     print(medias)
     print("amount"+str(amount)+" timetotal: ", time.time() - start)
     print(type(medias))

@@ -107,7 +107,9 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
         new_doc = {}
         new_doc["id"] = str(doc["_id"])
         new_doc["date"] = doc["taken_at"]
-        new_doc["user_name"] = doc["user"]
+        user = doc["user"].split()
+        user_name = user[1].split('=')
+        new_doc["user_name"] = user_name[1].replace('\'','')
         new_doc["image_url"] = doc["thumbnail_url"]
         new_doc["text"] = doc["caption_text"]
         new_doc["like_count"] = doc["like_count"]
