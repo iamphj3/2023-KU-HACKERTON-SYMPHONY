@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 import { useState } from 'react';
 import { IcSearch, IcArrowDown, IcToggleOn, IcToggleOff } from '../../assets/icons';
+import ImageSearch from './ImageSearch';
 
 const SEARCH_TABS = ['해시태그 검색', '이미지 검색'];
 const PERIODS = ['전체', '1주', '1개월', '3개월', '6개월', '1년'];
@@ -36,6 +37,7 @@ export default function SearchBox() {
           </StTabBtn>
         ))}
         <StInputWrapper>
+          {activeTab === SEARCH_TABS[1] ? <ImageSearch /> : null}
           <StSearchInput>
             <input type="text" placeholder="해시태그를 입력하세요." />
             <button type="button" onClick={handleSearch}>
