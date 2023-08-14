@@ -24,8 +24,8 @@ cl = Client()
 #cl.login_by_sessionid(os.environ["SESSION_ID"])
 #cl.set_proxy("https://61.37.223.152:8080")
 
-cl.load_settings('./tmp/dump.json')
-cl.get_timeline_feed()
+#cl.load_settings('./tmp/dump.json')
+#cl.get_timeline_feed()
 
 
 @router.get("/list/v1")

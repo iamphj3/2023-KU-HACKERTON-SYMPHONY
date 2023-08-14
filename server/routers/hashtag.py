@@ -18,14 +18,11 @@ router = APIRouter(
 load_dotenv()
 cl = Client()
 
-#cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
-#cl.login("insta_gadmin", "ins123tag@!")
-#cl.dump_settings('./tmp/dump.json')
-#cl.login_by_sessionid(os.environ["SESSION_ID"])
-#cl.set_proxy("https://61.37.223.152:8080")
+cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
+cl.dump_settings('./tmp/dump.json')
 
-cl.load_settings('./tmp/dump.json')
-cl.get_timeline_feed()
+#cl.load_settings('./tmp/dump.json')
+#cl.get_timeline_feed()
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_hashtags(hashtags : List[str] = Query(None)):
@@ -184,9 +181,7 @@ async def get_top(period : int):
             }
         },
         {
-            "$sort":{
-                "count" : -1
-            }
+            "$sort":{"count" : -1 }
         }
     ]
 
