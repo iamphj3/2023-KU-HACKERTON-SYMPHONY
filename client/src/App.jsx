@@ -1,11 +1,5 @@
-import reactLogo from './assets/react.svg'
-import { useState } from 'react'
 function App() {
-  return (
-    <>
-      
-    </>
-  )
+  return <></>;
 }
 
-export default App
+export default App;
