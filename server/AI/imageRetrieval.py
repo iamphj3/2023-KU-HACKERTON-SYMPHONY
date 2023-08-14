@@ -2,29 +2,10 @@ import os
 import numpy as np
 import tensorflow as tf
 from sklearn.neighbors import NearestNeighbors
-import skimage.io
 from multiprocessing import Pool
 from skimage.transform import resize
-
-def read_img(filePath):
-    return skimage.io.imread(filePath, as_gray=False)
-
-def read_imgs_dir(dirPath, extensions, parallel=True):
-    args = [os.path.join(dirPath, filename)
-            for filename in os.listdir(dirPath)
-            if any(filename.lower().endswith(ext) for ext in extensions)]
-    if parallel:
-        pool = Pool()
-        imgs = pool.map(read_img, args)
-        pool.close()
-        pool.join()
-    else:
-        imgs = [read_img(arg) for arg in args]
-    return imgs
-
-def save_img(filePath, img):
-    skimage.io.imsave(filePath, img)
-    
+from urllib.request import urlopen
+import cv2
 
 def apply_transformer(imgs, transformer, parallel=True):
     if parallel:
@@ -50,22 +31,19 @@ def resize_img(img, shape_resized):
 def flatten_img(img):
     return img.flatten("C")
 
-def model_result():
-    modelName = "vgg16" 
+#메인 모델
+def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_url":"http"}]
     parallel = True
-
-    # 데이터 경로
-    dataTrainDir = os.path.join(os.getcwd(), "data", "train")
-    dataTestDir = os.path.join(os.getcwd(), "data", "test")
-    outDir = os.path.join(os.getcwd(), "output", modelName)
-    if not os.path.exists(outDir):
-        os.makedirs(outDir)
-
-    #이미지 읽어오기
-    extensions = [".jpg", ".jpeg"]
-    imgs_train = read_imgs_dir(dataTrainDir, extensions, parallel=parallel)
-    imgs_test = image_url
-    #shape_img = imgs_train[0].shape
+    
+    img_set=[]
+    for data in img_url_list:
+        img=urlopen(data.image_url)
+        image = np.asarray(bytearray(img.read()), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        img_set.append(image)
+    
+    imgs_train = img_set
+    imgs_test = urlopen(queryImage).read()
     shape_img = (100,100,3)
 
     #VGGNet 로딩
@@ -103,13 +81,10 @@ def model_result():
     E_test_flatten = E_test.reshape((-1, np.prod(output_shape_model)))
 
     # k-근접
-    knn = NearestNeighbors(n_neighbors=10, metric="cosine")
+    knn = NearestNeighbors(n_neighbors=len(imgs_train), metric="cosine")
     knn.fit(E_train_flatten)
-
-    # 유사 이미지 추출
+    _, indices = knn.kneighbors(E_test_flatten)
     imgs_retrieval=[]
-    for i, emb_flatten in enumerate(E_test_flatten):
-        _, indices = knn.kneighbors([emb_flatten])
-        img_query = imgs_test[i]
-        imgs_retrieval = [imgs_train[idx] for idx in indices.flatten()]
+    for idx in indices.flatten():
+        imgs_retrieval.append(img_url_list[idx])
     return imgs_retrieval

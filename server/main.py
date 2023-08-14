@@ -9,10 +9,10 @@ app = FastAPI()
 def root():
     return {"message": "Hello, insTAG!"}
 
-@app.get("/hashtag/image")
+""" @app.get("/hashtag/image")
 async def imageSearch():
     res={}
     ImageUrl=""
     image_sets=""
     result=imageRetrieval(ImageUrl,image_sets)
-    return {"data": res}
+    return {"data": res} """
