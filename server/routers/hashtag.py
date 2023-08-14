@@ -110,10 +110,9 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
     query = {}
     query["_id"] = { "$gt": ObjectId(lastId) }
 
-    #기간 정렬
+    #기간 필터 
     current_date = datetime.now()
     days_ago = current_date - timedelta(days=period)
-    print(days_ago)
     if period !=0:
         query["date"] = {
             "$gte": days_ago,
@@ -123,9 +122,20 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
     if isAds:
         query["isAds"] = {"$ne":True}
 
-    cursor = db[tag_id].find(query)
-    docs = await cursor.to_list(length=amount)
+    #정렬
+    sort_op = []
+    sort_doc = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
+    print(sort_doc)
+    if(sort_doc["isLast"]):
+        sort_op.append(('date', -1))
+    if(sort_doc["isLike"]):
+        sort_op.append(('like_count', -1))
+    if(sort_doc["isComment"]):
+        sort_op.append(('comment_count', -1))
 
+    cursor = db[tag_id].find(query).sort(sort_op)
+    docs = await cursor.to_list(length=amount)
+        
     final_doc = await db[tag_id].find_one(sort=[('_id', -1)])
     
     if(len(docs)==0): return res
@@ -155,6 +165,14 @@ async def get_tag_id(hashtags : List[str] = Query(None)):
 
 @router.post("/sort", status_code=status.HTTP_201_CREATED)
 async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
+    #인덱스 
+    if(isLike):
+        await db[tag_id].create_index([('like_count', -1)])
+    if(isLast):
+        await db[tag_id].create_index([('date', -1)])
+    if(isComment):
+        await db[tag_id].create_index([('comment_count', -1)])
+        
     await db["tagsId"].find_one_and_update({"_id":ObjectId(tag_id)},{"$set":{"isLast":isLast,"isLike":isLike,"isComment":isComment}})
      
 
