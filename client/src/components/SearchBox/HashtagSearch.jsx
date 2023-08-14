@@ -10,17 +10,29 @@ export default function HashtagSearch() {
 
   const handleSearch = () => {
     if (hashtagInput.trim() !== '') {
-      // 검색어가 공백이 아닌 경우에만 추가
       setHashtagList((prevList) => [...prevList, hashtagInput]);
-      setHashtagInput(''); // 검색 후 검색어 상태 초기화
+      setHashtagInput('');
     }
   };
-  console.log(hashtagList);
+  const handleKeUp = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      handleSearch();
+    }
+  };
+  const handleHashtagInputChange = (e) => {
+    setHashtagInput(e.target.value.replace(/ /g, ''));
+  };
 
   return (
     <StHashtagSearch>
       <StSearchInput>
-        <input type="text" value={hashtagInput} onChange={(e) => setHashtagInput(e.target.value)} placeholder="해시태그를 입력하세요." />
+        <input
+          type="text"
+          value={hashtagInput}
+          onChange={(e) => handleHashtagInputChange(e)}
+          onKeyUp={handleKeUp}
+          placeholder="해시태그를 입력하세요."
+        />
         <button type="button" onClick={handleSearch}>
           <IcSearch />
         </button>
