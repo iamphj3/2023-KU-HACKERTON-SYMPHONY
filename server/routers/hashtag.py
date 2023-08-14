@@ -6,7 +6,7 @@ from instagrapi.types import Media
 from fastapi import APIRouter, Query, status
 from typing import List
 from bson.objectid import ObjectId
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from models import get_db
 db = get_db()
 
@@ -29,10 +29,12 @@ cl.get_timeline_feed()
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_hashtags(hashtags : List[str] = Query(None)):
+    current_date = datetime.today()
+
     #top 기록 
     for tag in hashtags:
-        await db["top"].find_one_and_update({"tag": tag}, {'$inc':{"cnt":1}}, upsert=True)
-    
+        #await db["top"].find_one_and_update({"tag": tag}, {'$inc':{"cnt":1}}, upsert=True)
+        await db["top"].insert_one({"tag" :tag, "date": current_date})
     #tag_id 저장
     hashtags.sort()
     result = await db["tagsId"].insert_one({"tags":hashtags, 
@@ -160,10 +162,38 @@ async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
      
 
 @router.get("/top")
-async def get_top():
-    cursor = db["top"].find().sort([('cnt',-1)])
+async def get_top(period : int):
+    query = {}
+    #기간 정렬
+    current_date = datetime.today()
+    days_ago = current_date - timedelta(days=period)
+    days_ago = days_ago.replace(hour=0, minute=0, second=0, microsecond=0)
+    print(days_ago)
+    pipeline = [
+        {
+            "$match": {
+            "date": {
+                "$gte": days_ago,
+                "$lte": current_date
+            }
+        }},
+        {
+            "$group": {
+            "_id": "$tag",
+            "count": {"$sum": 1}
+            }
+        },
+        {
+            "$sort":{
+                "count" : -1
+            }
+        }
+    ]
+
+    cursor = db["top"].aggregate(pipeline)
     docs = await cursor.to_list(length=10)
+    print(docs)
     result = list()
     for doc in docs:
-        result.append(doc.get('tag'))
+        result.append(doc.get('_id'))
     return result   
