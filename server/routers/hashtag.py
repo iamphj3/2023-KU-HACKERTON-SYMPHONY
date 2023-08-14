@@ -18,11 +18,11 @@ router = APIRouter(
 load_dotenv()
 cl = Client()
 
-cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
-cl.dump_settings('./tmp/dump.json')
+#cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
+#cl.dump_settings('./tmp/dump.json')
 
-#cl.load_settings('./tmp/dump.json')
-#cl.get_timeline_feed()
+cl.load_settings('./tmp/dump.json')
+cl.get_timeline_feed()
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_hashtags(hashtags : List[str] = Query(None)):
