@@ -1,8 +1,11 @@
 import { styled } from 'styled-components';
+import { RecoilState, useRecoilState } from 'recoil';
 import { IcSearch } from '../../assets/icons';
+import { HashtagList } from '../../recoil/atom';
 
 export default function HashtagSearch() {
   const handleSearch = () => {};
+  const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
 
   return (
     <StHashtagSearch>
