@@ -64,7 +64,7 @@ def model_result():
     #이미지 읽어오기
     extensions = [".jpg", ".jpeg"]
     imgs_train = read_imgs_dir(dataTrainDir, extensions, parallel=parallel)
-    imgs_test = read_imgs_dir(dataTestDir, extensions, parallel=parallel)
+    imgs_test = image_url
     #shape_img = imgs_train[0].shape
     shape_img = (100,100,3)
 
