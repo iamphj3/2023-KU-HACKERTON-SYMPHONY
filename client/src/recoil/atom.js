@@ -11,7 +11,7 @@ const UploadedImage = atom({
 
 const HashtagList = atom({
   key: 'hashtagList',
-  default: [''],
+  default: [],
   effects_UNSTABLE: [persistAtom],
 });
 
