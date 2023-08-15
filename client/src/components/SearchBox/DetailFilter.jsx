@@ -1,13 +1,17 @@
 import { styled } from 'styled-components';
 import { useState } from 'react';
+import { useRecoilState } from 'recoil';
 import { IcArrowDown, IcToggleOn, IcToggleOff } from '../../assets/icons';
+import { PeriodState, IsAdsState } from '../../recoil/atom';
 
 const PERIODS = ['전체', '1주', '1개월', '3개월', '6개월', '1년'];
+const PERIOD_VALUES = [0, 7, 30, 90, 180, 365];
 
 export default function DetailFilter() {
-  const [selectedPeriod, setselectedPeriod] = useState(PERIODS[0]);
+  const [selectedPeriod, setSelectedPeriod] = useState(PERIODS[0]);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isAdFiltered, setIsAdFiltered] = useState(true);
+  const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
+  const [periodState, setPeriodState] = useRecoilState(PeriodState);
 
   const handleFilter = () => {
     setIsExpanded((prev) => !prev);
@@ -15,6 +19,14 @@ export default function DetailFilter() {
 
   const handleToggle = () => {
     setIsAdFiltered((prev) => !prev);
+  };
+
+  const handlePeriodChange = (period) => {
+    const periodIndex = PERIODS.indexOf(period);
+    if (periodIndex !== -1) {
+      setPeriodState(PERIOD_VALUES[periodIndex]);
+    }
+    setSelectedPeriod(period);
   };
 
   return (
@@ -34,11 +46,11 @@ export default function DetailFilter() {
               key={period}
               className={selectedPeriod === period ? 'selected' : ''}
               selected={selectedPeriod === period}
-              onClick={() => setselectedPeriod(period)}
+              onClick={() => handlePeriodChange(period)}
               role="presentation"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  setselectedPeriod(period);
+                  setSelectedPeriod(period);
                 }
               }}
             >

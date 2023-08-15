@@ -1,17 +1,88 @@
 import { styled } from 'styled-components';
+import { useInView } from 'react-intersection-observer';
+import { useState, useEffect, useCallback } from 'react';
+import { useRecoilState } from 'recoil';
 import PostCard from './PostCard';
+import { HashtagList, IsAdsState, PeriodState, UploadedImage } from '../../recoil/atom';
+import { getSearchResult, getTotalPostNum } from '../../apis/result';
 
-export default function PostResult() {
+export default function PostResult({ searchDataId }) {
+  const [searchId, setSearchId] = useState(searchDataId);
+  const [postList, setPostList] = useState([]);
+  const [totalPost, setTotalPost] = useState();
+  const [lastId, setLastId] = useState('000000000000000000000000');
+  const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
+  const [periodState, setPeriodState] = useRecoilState(PeriodState);
+  const [imageUrl, setImageUrl] = useRecoilState(UploadedImage);
+
+  console.log(searchId, 'searchId');
+  const { ref, inView } = useInView({
+    threshold: 0.5,
+  });
+
+  const getTotalPost = async () => {
+    try {
+      const total = await getTotalPostNum(searchId);
+      setTotalPost(total);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getPost = async () => {
+    try {
+      const posts = await getSearchResult({
+        tagId: searchId,
+        lastId,
+        period: periodState,
+        isAds: isAdFiltered,
+        image_url: imageUrl,
+      });
+      console.log('posts', posts);
+
+      const postnum = posts.results.length - 1;
+      setLastId(posts.results[postnum].id);
+      setPostList((prevList) => [...prevList, ...posts.results]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (searchId) {
+      getTotalPost();
+      getPost();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (inView) {
+      getPost();
+    }
+  }, [inView]);
+
   return (
     <StPostResult>
-      <p>총 100개의 게시물</p>
-      <StPostList>
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-      </StPostList>
+      {searchId ? (
+        <>
+          <p>{`총 ${totalPost}개의 게시물`}</p>
+          <StPostList>
+            {postList.slice(10).map((data) => (
+              <div key={data.id} ref={ref}>
+                <PostCard postData={data} />
+              </div>
+            ))}
+          </StPostList>
+        </>
+      ) : (
+        <StEmptyView>
+          <p>
+            다음 해시태그에 해당하는
+            <br />
+            검색 결과가 없습니다.
+          </p>
+        </StEmptyView>
+      )}
     </StPostResult>
   );
 }
@@ -24,9 +95,19 @@ const StPostResult = styled.section`
 `;
 
 const StPostList = styled.div`
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-items: center;
-    row-gap: 4rem;
-    column-gap: 0.9rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-items: center;
+  row-gap: 4rem;
+  column-gap: 0.9rem;
+`;
+
+const StEmptyView = styled.div`
+  & > p {
+    margin-top: 14.1rem;
+    text-align: center;
+
+    color: ${({ theme }) => theme.colors.Gray5};
+    ${({ theme }) => theme.fonts.Body1};
+  }
 `;

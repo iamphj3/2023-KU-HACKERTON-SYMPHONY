@@ -1,25 +1,47 @@
 import { styled } from 'styled-components';
+import { useState, useEffect } from 'react';
 import { IcComment, IcHeart } from '../../assets/icons';
+import { formatDate } from '../../utils';
 
-export default function PostCard() {
+export default function PostCard({ postData }) {
+  const { comment_count, date, id, image_url, isAds, like_count, pk, text, user_name } = postData;
+
+  const slicedText = text.length > 31 ? `${text.substring(0, 31)}...` : text;
+  const [encodedUrl, setEncodedUrl] = useState();
+
+  useEffect(() => {
+    const encodeAndSetImage = async (imageUrl) => {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEncodedUrl(reader.result);
+      };
+      reader.readAsDataURL(blob);
+    };
+
+    encodeAndSetImage(image_url);
+  }, []);
+
   return (
     <StPostCard>
-      <img alt="post-thumbnail" src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FdmCqfe%2Fbtq4jsZ6exh%2FIq71TMudD3jkBLjqmanaRK%2Fimg.jpg" />
+      {encodedUrl && <img alt="post-thumbnail" src={encodedUrl} />}
       <StInteractions>
         <div>
           <IcHeart />
-          <span>30</span>
+          <span>{like_count}</span>
         </div>
         <div>
           <IcComment />
-          <span>30</span>
+          <span>{comment_count}</span>
         </div>
       </StInteractions>
       <StContent>
-        <p>365일 중 제일 중요한;; 🐷삼삼데이🐷,, 솥뚜껑삼겹살에...</p>
+        <p>{slicedText}</p>
       </StContent>
-      <p>@wasabiihater</p>
-      <p>23.07.23</p>
+      <p>{`@${user_name}`}</p>
+      <p>{formatDate(date).postDate}</p>
     </StPostCard>
   );
 }
@@ -35,6 +57,7 @@ const StPostCard = styled.article`
     object-fit: cover;
 
     width: 100%;
+    min-width: 16.8rem;
     height: 16.8rem;
     margin-bottom: 0.9rem;
 
@@ -42,7 +65,7 @@ const StPostCard = styled.article`
   }
 
   & > p {
-    color : ${({ theme }) => theme.colors.Gray6};
+    color: ${({ theme }) => theme.colors.Gray6};
     ${({ theme }) => theme.fonts.Body2};
   }
 `;
@@ -52,7 +75,7 @@ const StInteractions = styled.div`
   gap: 1rem;
   margin-bottom: 0.8rem;
 
-  & > div {  
+  & > div {
     display: flex;
     align-items: center;
     gap: 0.2rem;
@@ -60,7 +83,7 @@ const StInteractions = styled.div`
 
   span {
     padding-left: 0.2rem;
-    color : ${({ theme }) => theme.colors.Gray6};
+    color: ${({ theme }) => theme.colors.Gray6};
     ${({ theme }) => theme.fonts.Body2};
   }
 `;

@@ -146,7 +146,7 @@ ${reset}
 
 /* @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.6/dist/web/variable/pretendardvariable.css"); */
 
-#root, body, html,main {
+#root, body, html {
   width: 100vw;
   height: 100vh;
   max-width: 43rem;

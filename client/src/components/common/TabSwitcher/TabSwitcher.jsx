@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
 
-function TabSwitcher({
-  tabList, selectedStyle, noSelectedStyle,
-}) {
+function TabSwitcher({ tabList, selectedStyle, noSelectedStyle, onTabChange }) {
   const [activeTab, setActiveTab] = useState(tabList[0]);
   const [loading, setLoading] = useState(false);
 
@@ -15,6 +13,7 @@ function TabSwitcher({
     if (activeTab !== tab) {
       setLoading(true);
       setActiveTab(tab);
+      onTabChange(tab);
     }
   };
 
@@ -51,7 +50,7 @@ const StTabs = styled.div`
   gap: 1rem;
 
   & > button {
-      ${({ theme }) => theme.fonts.Body3};
+    ${({ theme }) => theme.fonts.Body3};
 
     &:not(:last-child)::after {
       content: '|';
@@ -65,6 +64,4 @@ const StTabs = styled.div`
   }
 `;
 
-const StTabContents = styled.div`
-  
-`;
+const StTabContents = styled.div``;
