@@ -1,11 +1,15 @@
 import { client } from './axios';
 
 // 해시태그 조회 API
-export const getSearchResult = async ({ _tagId, _lastId, _period, _isAds, _amount }) => {
+export const getSearchResult = async ({ tagId, lastId, period, isAds, image_url }) => {
   try {
-    const { data } = await client.get(`/hashtag?tag_id=${_tagId}&lastId=${_lastId}&period=${_period}&isAds=${_isAds}&amount=${_amount}`);
-    console.log(data);
-    return data;
+    let url = `/hashtag?tag_id=${tagId}&lastId=${lastId}&period=${period}&isAds=${isAds}`;
+    if (image_url) {
+      url += `&image_url=${image_url}`;
+    }
+    const { data } = await client.get(url);
+    console.log(data.data);
+    return data.data;
   } catch (err) {
     console.error(err);
   }

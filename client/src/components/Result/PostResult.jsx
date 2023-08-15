@@ -4,36 +4,46 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useLocation } from 'react-router-dom';
 import PostCard from './PostCard';
-import { HashtagList } from '../../recoil/atom';
-// import useGetPostList from '../../hooks/useGetPostList';
+import { HashtagList, IsAdsState, PeriodState, UploadedImage } from '../../recoil/atom';
 import { getSearchResult } from '../../apis/result';
 
 export default function PostResult() {
   const location = useLocation();
   const { searchDataId } = location.state;
+  console.log(searchDataId);
 
   const [postList, setPostList] = useState([]);
   const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
-
-  // const { postList, isLoading, isError, size, setSize } = useGetPostList();
-
-  useEffect(() => {}, []);
+  const [lastId, setLastId] = useState('000000000000000000000000');
+  const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
+  const [periodState, setPeriodState] = useRecoilState(PeriodState);
+  const [imageUrl, setImageUrl] = useRecoilState(UploadedImage);
 
   const { ref, inView } = useInView({
     threshold: 0.5,
   });
 
-  // const getMorePost = useCallback(() => {
-  //   if (postList && postList.results) {
-  //     setSize((prev) => prev + 1);
-  //   }
-  // }, [postList, setSize]);
+  const getPost = async () => {
+    try {
+      console.log(searchDataId, lastId, periodState, isAdFiltered, imageUrl);
+      const res = await getSearchResult({
+        tagId: searchDataId,
+        lastId,
+        period: periodState,
+        isAds: isAdFiltered,
+        image_url: imageUrl,
+      });
+      console.log(res);
 
-  // useEffect(() => {
-  //   if (inView && postList.results) {
-  //     getMorePost();
-  //   }
-  // }, [inView]);
+      // setPostList((prevList) => [...prevList, ...res.results]);
+      // setLastId(res.lastId);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    }
+  };
+  useEffect(() => {
+    getPost();
+  }, [searchDataId, lastId, periodState, isAdFiltered]);
 
   const getMorePost = useCallback(() => {
     // if (postList && postList.results) {
