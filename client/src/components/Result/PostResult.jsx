@@ -33,16 +33,17 @@ export default function PostResult() {
 
   const getPost = async () => {
     try {
-      const res = await getSearchResult({
+      const posts = await getSearchResult({
         tagId: searchDataId,
         lastId,
         period: periodState,
         isAds: isAdFiltered,
         image_url: imageUrl,
       });
-      console.log('res', res);
-      setLastId(res.results[9].id);
-      setPostList((prevList) => [...prevList, ...res.results]);
+
+      const postnum = posts.results.length - 1;
+      setLastId(posts.results[postnum].id);
+      setPostList((prevList) => [...prevList, ...posts.results]);
     } catch (error) {
       console.error(error);
     }
@@ -54,15 +55,10 @@ export default function PostResult() {
   }, []);
 
   useEffect(() => {
-    console.log(lastId);
-    console.log(postList[postList.length - 1]?.id);
     if (inView) {
       getPost();
     }
   }, [inView]);
-
-  console.log(inView);
-  console.log(postList);
 
   return (
     <StPostResult>
@@ -70,7 +66,7 @@ export default function PostResult() {
         <>
           <p>{`총 ${totalPost}개의 게시물`}</p>
           <StPostList>
-            {postList.map((data) => (
+            {postList.slice(10).map((data) => (
               <div key={data.id} ref={ref}>
                 <PostCard postData={data} />
               </div>
