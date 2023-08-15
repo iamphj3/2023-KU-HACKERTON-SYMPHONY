@@ -1,13 +1,19 @@
 import { styled } from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect, useCallback } from 'react';
+import { useRecoilState } from 'recoil';
 import PostCard from './PostCard';
+import { HashtagList } from '../../recoil/atom';
 // import useGetPostList from '../../hooks/useGetPostList';
+import { postSearch } from '../../apis/search';
 
 export default function PostResult() {
-  const [postList, setPostList] = useState();
+  const [postList, setPostList] = useState([]);
+  const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
 
   // const { postList, isLoading, isError, size, setSize } = useGetPostList();
+
+  useEffect(() => {}, []);
 
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -38,8 +44,6 @@ export default function PostResult() {
       getMorePost();
     }
   }, [inView]);
-
-  console.log(inView);
 
   return (
     <StPostResult>
