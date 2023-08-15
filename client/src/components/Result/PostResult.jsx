@@ -9,7 +9,7 @@ import { getSearchResult, getTotalPostNum } from '../../apis/result';
 
 export default function PostResult() {
   const location = useLocation();
-  const { searchDataId } = location.state;
+  const searchDataId = location.state ? location.state.searchDataId : null;
 
   const [postList, setPostList] = useState([]);
   const [totalPost, setTotalPost] = useState();
@@ -50,9 +50,11 @@ export default function PostResult() {
   };
 
   useEffect(() => {
-    getTotalPost();
-    getPost();
-  }, []);
+    if (searchDataId) {
+      getTotalPost();
+      getPost();
+    }
+  }, [searchDataId]);
 
   useEffect(() => {
     if (inView) {
@@ -62,7 +64,7 @@ export default function PostResult() {
 
   return (
     <StPostResult>
-      {postList ? (
+      {searchDataId ? (
         <>
           <p>{`총 ${totalPost}개의 게시물`}</p>
           <StPostList>

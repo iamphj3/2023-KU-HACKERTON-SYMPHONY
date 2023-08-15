@@ -5,6 +5,7 @@ export const postSearch = async (hashtags) => {
   try {
     const hashtagsQueryParam = hashtags.map((tag) => `hashtags=${tag}`).join('&');
     const data = await client.post(`/hashtag/?${hashtagsQueryParam}`);
+    console.log(data);
     return data.status;
   } catch (err) {
     console.error(err);
