@@ -6,7 +6,7 @@ import { formatDate } from '../../utils';
 export default function PostCard({ postData }) {
   const { comment_count, date, id, image_url, isAds, like_count, pk, text, user_name } = postData;
 
-  const slicedText = `${text.substring(0, 31)}...`;
+  const slicedText = text.length > 31 ? `${text.substring(0, 31)}...` : text;
   const [encodedUrl, setEncodedUrl] = useState();
 
   useEffect(() => {
