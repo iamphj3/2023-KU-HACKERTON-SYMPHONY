@@ -9,4 +9,10 @@ const UploadedImage = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export { UploadedImage };
+const HashtagList = atom({
+  key: 'hashtagList',
+  default: [],
+  effects_UNSTABLE: [persistAtom],
+});
+
+export { UploadedImage, HashtagList };

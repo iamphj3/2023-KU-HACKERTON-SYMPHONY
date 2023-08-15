@@ -1,13 +1,42 @@
 import { styled } from 'styled-components';
+import { useRecoilState } from 'recoil';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IcSearch } from '../../assets/icons';
+import { HashtagList } from '../../recoil/atom';
 
 export default function HashtagSearch() {
-  const handleSearch = () => {};
+  const [hashtagInput, setHashtagInput] = useState('');
+  const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
+
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    if (hashtagInput.trim() !== '') {
+      setHashtagList((prevList) => [...prevList, hashtagInput]);
+      setHashtagInput('');
+      navigate('/result');
+    }
+  };
+  const handleKeUp = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      handleSearch();
+    }
+  };
+  const handleHashtagInputChange = (e) => {
+    setHashtagInput(e.target.value.replace(/ /g, ''));
+  };
 
   return (
     <StHashtagSearch>
       <StSearchInput>
-        <input type="text" placeholder="해시태그를 입력하세요." />
+        <input
+          type="text"
+          value={hashtagInput}
+          onChange={(e) => handleHashtagInputChange(e)}
+          onKeyUp={handleKeUp}
+          placeholder="해시태그를 입력하세요."
+        />
         <button type="button" onClick={handleSearch}>
           <IcSearch />
         </button>
