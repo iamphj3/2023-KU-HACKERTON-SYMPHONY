@@ -2,15 +2,11 @@ import { styled } from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect, useCallback } from 'react';
 import { useRecoilState } from 'recoil';
-import { useLocation } from 'react-router-dom';
 import PostCard from './PostCard';
 import { HashtagList, IsAdsState, PeriodState, UploadedImage } from '../../recoil/atom';
 import { getSearchResult, getTotalPostNum } from '../../apis/result';
 
-export default function PostResult() {
-  const location = useLocation();
-  const searchDataId = location.state ? location.state.searchDataId : null;
-
+export default function PostResult({ searchDataId }) {
   const [postList, setPostList] = useState([]);
   const [totalPost, setTotalPost] = useState();
   const [lastId, setLastId] = useState('000000000000000000000000');
