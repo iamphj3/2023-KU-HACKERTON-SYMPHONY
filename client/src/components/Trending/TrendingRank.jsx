@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { styled } from 'styled-components';
 
-export default function TrendingRank() {
+export default function TrendingRank(selectedPeriod) {
+  const [period, setPeriod] = useState(selectedPeriod);
+
   return (
     <StTrendingRank>
       <StLeftColumn>
@@ -51,7 +54,6 @@ export default function TrendingRank() {
           </li>
         </ol>
       </StRightColumn>
-
     </StTrendingRank>
   );
 }
@@ -66,16 +68,11 @@ const StTrendingRank = styled.article`
     ${({ theme }) => theme.fonts.Body2};
   }
   * > span {
-      margin-right: 1rem;
+    margin-right: 1rem;
     ${({ theme }) => theme.fonts.Title2};
   }
-
 `;
 
-const StLeftColumn = styled.div`
-  
-`;
+const StLeftColumn = styled.div``;
 
-const StRightColumn = styled.div`
-  
-`;
+const StRightColumn = styled.div``;

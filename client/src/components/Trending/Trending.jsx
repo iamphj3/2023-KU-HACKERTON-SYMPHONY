@@ -1,7 +1,9 @@
 import { styled } from 'styled-components';
+import { useEffect, useState } from 'react';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import { getToday } from '../../utils';
 import TrendingRank from './TrendingRank';
+import { getTrendingHashtag } from '../../apis/trending';
 
 const TRENDING_TABS = {
   tabList: ['일별', '주간별'],
@@ -13,7 +15,13 @@ const TRENDING_TABS = {
 export default function Trending() {
   const { tabList, selectedStyle, noSelectedStyle } = TRENDING_TABS;
   const { today, datetime } = getToday();
+  const [selectedPeriod, setSeletedPeriod] = useState('일별');
 
+  const handleTabChange = (tab) => {
+    setSeletedPeriod(tab);
+  };
+
+  console.log(selectedPeriod);
   return (
     <StTrending>
       <h3>
@@ -22,18 +30,14 @@ export default function Trending() {
       </h3>
       <div>
         <time dateTime={datetime}>{today}</time>
-        <TabSwitcher
-          tabList={tabList}
-          selectedStyle={selectedStyle}
-          noSelectedStyle={noSelectedStyle}
-        />
+        <TabSwitcher tabList={tabList} selectedStyle={selectedStyle} noSelectedStyle={noSelectedStyle} onTabChange={handleTabChange} />
       </div>
-      <TrendingRank />
+      <TrendingRank selectedPeriod={selectedPeriod} />
     </StTrending>
   );
 }
 
-const StTrending = styled.section`  
+const StTrending = styled.section`
   height: 23.1rem;
   padding: 2.4rem 1.6rem;
 
@@ -45,8 +49,8 @@ const StTrending = styled.section`
     ${({ theme }) => theme.fonts.Head2};
 
     & > span {
-        ${({ theme }) => theme.fonts.Head2};
-        color : ${({ theme }) => theme.colors.main};
+      ${({ theme }) => theme.fonts.Head2};
+      color: ${({ theme }) => theme.colors.main};
     }
   }
 
@@ -54,10 +58,10 @@ const StTrending = styled.section`
     display: flex;
     justify-content: space-between;
     margin-bottom: 2.4rem;
-    
+
     & > time {
-    ${({ theme }) => theme.fonts.Body3};
-    color : ${({ theme }) => theme.colors.Gray5};
-  }
+      ${({ theme }) => theme.fonts.Body3};
+      color: ${({ theme }) => theme.colors.Gray5};
+    }
   }
 `;
