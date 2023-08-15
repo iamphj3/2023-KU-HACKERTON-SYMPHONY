@@ -15,6 +15,8 @@ from urllib3.util.retry import Retry
 from time import sleep
 from AI.imageRetrieval import model_predict
 from models.instagrapi_exceptions import handle_exception
+import concurrent.futures
+import asyncio
 db = get_db()
 
 router = APIRouter(
@@ -28,7 +30,7 @@ cl.handle_exception = handle_exception
 
 username = environ["PROXY_USER_NAME"]
 pw = environ["PROXY_PASSWORD"]
-proxy = f"https://{username}:{pw}@gate.smartproxy.com:10002"
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:10011"
 cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
@@ -37,53 +39,71 @@ cl.set_proxy(proxy)
 cl.load_settings('./tmp/dump.json')
 cl.get_timeline_feed()
 
+def get_hastag_medias(tag: str, amount:int):
+    print(tag)
+    medias = cl.hashtag_medias_top_v1(tag, amount=amount)
+    new_data = []
+    for media in medias:
+        doc = media.dict()
+        new_doc = {}
+        new_doc["pk"] = str(doc["pk"])
+        new_doc["id"] = str(doc["id"])
+        new_doc["date"] = doc["taken_at"]
+        new_doc["user_name"] = doc["user"]["username"]
+        if doc["thumbnail_url"] is not None :
+            new_doc["image_url"] = doc["thumbnail_url"]
+        else:
+            new_doc["image_url"] = doc["resources"][0]["thumbnail_url"]
+        new_doc["text"] = doc["caption_text"]
+        new_doc["like_count"] = doc["like_count"]
+        new_doc["comment_count"] = doc["comment_count"]
+            
+        #초기화 
+        new_doc["isAds"] = False
+        new_doc["image_rank"] = 0
+        new_doc["sort_rank"] = 0
+
+        #광고 여부 
+        check_ads = ['광고', '협찬', '공구']
+        for ads in check_ads:
+            if ads in doc["caption_text"]:
+                new_doc["isAds"] = True
+                break
+        new_data.append(new_doc)
+        
+    return new_data
+
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_hashtags(hashtags : List[str] = Query(None)):
     current_date = datetime.today()
 
     #top 기록 
     for tag in hashtags:
-        #await db["top"].find_one_and_update({"tag": tag}, {'$inc':{"cnt":1}}, upsert=True)
         await db["top"].insert_one({"tag" :tag, "date": current_date})
+
     #tag_id 저장
     hashtags.sort()
     result = await db["tagsId"].insert_one({"tags":hashtags, 
                                 "isLast":False, "isLike":False, "isComment":False}) 
     tag_id = str(result.inserted_id)
 
+    #검색
     amount = 20
     collection_names = await db.list_collection_names()
-    for tag in hashtags:
-        #검색량 저장
-        medias = cl.hashtag_medias_top_v1(tag, amount=amount)
-        if not(tag in collection_names): #검색 기록 확인
-            new_data = []
-            for media in medias:
-                doc = media.dict()
-                new_doc = {}
-                new_doc["pk"] = str(doc["pk"])
-                new_doc["id"] = str(doc["id"])
-                new_doc["date"] = doc["taken_at"]
-                new_doc["user_name"] = doc["user"]["username"]
-                if doc["thumbnail_url"] is not None :
-                    new_doc["image_url"] = doc["thumbnail_url"]
-                else:
-                    new_doc["image_url"] = doc["resources"][0]["thumbnail_url"]
-                new_doc["text"] = doc["caption_text"]
-                new_doc["like_count"] = doc["like_count"]
-                new_doc["comment_count"] = doc["comment_count"]
-                new_doc["isAds"] = False
-                new_doc["image_rank"] = 0
-                new_doc["sort_rank"] = 0
 
-                #광고 여부 
-                check_ads = ['광고', '협찬', '공구']
-                for ads in check_ads:
-                    if ads in doc["caption_text"]:
-                        new_doc["isAds"] = True
-                        break
-                new_data.append(new_doc)
-            result = await db[tag].insert_many(new_data)
+    results = []
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for tag in hashtags:
+            if not(tag in collection_names):
+                future = executor.submit(get_hastag_medias, tag, amount)
+                results.append(future)
+
+    for tag, future in zip(hashtags, results):
+        if future.done():
+            result = future.result()
+            if len(result)!=0:
+                await db[tag].insert_many(result)
 
     #조인 테이블 생성
     await tags_union(tag_id, hashtags)
