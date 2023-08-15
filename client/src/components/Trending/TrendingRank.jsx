@@ -33,7 +33,7 @@ export default function TrendingRank({ selectedPeriod }) {
       <div>
         <ol>
           {leftRank.map((hashtag, index) => (
-            <li key={index}>
+            <li key={hashtag}>
               <span>{index + 1}</span>
               {hashtag}
             </li>
@@ -43,7 +43,7 @@ export default function TrendingRank({ selectedPeriod }) {
       <div>
         <ol>
           {rightRank.map((hashtag, index) => (
-            <li key={index}>
+            <li key={hashtag}>
               <span>{index + 6}</span>
               {hashtag}
             </li>

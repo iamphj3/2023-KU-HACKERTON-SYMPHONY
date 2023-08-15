@@ -7,6 +7,7 @@ export const getTotalPostNum = async (tag_id) => {
     return data.data;
   } catch (err) {
     console.error(err);
+    throw err;
   }
 };
 
@@ -23,6 +24,7 @@ export const getSearchResult = async ({ tagId, lastId, period, isAds, image_url 
     return data.data;
   } catch (err) {
     console.error(err);
+    throw err;
   }
 };
 
@@ -34,5 +36,6 @@ export const getSortedResult = async (tagId, isLast, isLike, isComment) => {
     return data;
   } catch (err) {
     console.error(err);
+    throw err;
   }
 };

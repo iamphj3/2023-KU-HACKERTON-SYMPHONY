@@ -9,6 +9,7 @@ export const postSearch = async (hashtags) => {
     return data.status;
   } catch (err) {
     console.error(err);
+    throw err;
   }
 };
 
@@ -20,5 +21,6 @@ export const getHashtagId = async (hashtags) => {
     return data.data.tag_id;
   } catch (err) {
     console.error(err);
+    throw err;
   }
 };

@@ -14,5 +14,9 @@ module.exports = {
     'react/prop-types': 'off',
     'object-curly-newline': 'off',
     camelcase: 'off',
+    'no-unused-vars': 'off',
+    'no-console': 'off',
+    'max-len': 'off',
+    'react-hooks/exhaustive-deps': 'off',
   },
 };
