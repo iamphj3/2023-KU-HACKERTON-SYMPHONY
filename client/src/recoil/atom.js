@@ -15,16 +15,16 @@ const HashtagList = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-const SearchOption = atom({
-  key: 'searchOption',
-  default: {
-    tag_id: '',
-    lastId: '000000000000000000000000',
-    period: 0,
-    isAds: true,
-    image_url: '',
-  },
+const PeriodState = atom({
+  key: 'periodState',
+  default: 0,
   effects_UNSTABLE: [persistAtom],
 });
 
-export { UploadedImage, HashtagList, SearchOption };
+const IsAdsState = atom({
+  key: 'isAdsState',
+  default: true,
+  effects_UNSTABLE: [persistAtom],
+});
+
+export { UploadedImage, HashtagList, PeriodState, IsAdsState };
