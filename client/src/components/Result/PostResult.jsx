@@ -10,7 +10,6 @@ import { getSearchResult } from '../../apis/result';
 export default function PostResult() {
   const location = useLocation();
   const { searchDataId } = location.state;
-  console.log(searchDataId);
 
   const [postList, setPostList] = useState([]);
   const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
@@ -35,7 +34,8 @@ export default function PostResult() {
       });
       console.log(res);
 
-      // setPostList((prevList) => [...prevList, ...res.results]);
+      setPostList((prevList) => [...prevList, ...res.results]);
+      console.log(postList);
       // setLastId(res.lastId);
     } catch (error) {
       console.error('Error fetching search results:', error);

@@ -5,7 +5,7 @@ import { formatDate } from '../../utils';
 export default function PostCard({ postData }) {
   const { comment_count, date, id, image_url, isAds, like_count, pk, text, user_name } = postData;
 
-  const slicedText = text.length > 100 ? `${text.substring(0, 33)}...` : text;
+  const slicedText = `${text.substring(0, 31)}...`;
 
   return (
     <StPostCard>
