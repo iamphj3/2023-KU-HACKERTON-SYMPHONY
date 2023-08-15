@@ -14,22 +14,26 @@ export default function SearchList() {
   };
 
   return (
-    <StSearchList>
-      <StSearchInfo>
-        <h3>검색어 목록</h3>
-        <button type="button" onClick={handleAllDelete}>
-          전체 삭제
-        </button>
-      </StSearchInfo>
-      <StHashtagList>
-        {hashtagList.map((hashtag) => (
-          <HashTag key={hashtag} hashtag={hashtag} onDelete={handleDeleteTag} />
-        ))}
-      </StHashtagList>
-    </StSearchList>
+    hashtagList.length > 0 && (
+      <StSearchList>
+        <StSearchInfo>
+          <h3>검색어 목록</h3>
+          <button type="button" onClick={handleAllDelete}>
+            전체 삭제
+          </button>
+        </StSearchInfo>
+        <StHashtagList>
+          {hashtagList.map((hashtag) => (
+            <HashTag key={hashtag} hashtag={hashtag} onDelete={handleDeleteTag} />
+          ))}
+        </StHashtagList>
+      </StSearchList>
+    )
   );
 }
-const StSearchList = styled.section``;
+const StSearchList = styled.section`
+  margin: 0.4rem 0 4rem 0;
+`;
 
 const StSearchInfo = styled.div`
   display: flex;
