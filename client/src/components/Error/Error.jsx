@@ -40,6 +40,8 @@ const StError = styled.section`
   & > p {
     margin-bottom: 2rem;
 
+    text-align: center;
+
     color: ${({ theme }) => theme.colors.Gray4};
     ${({ theme }) => theme.fonts.Body3};
   }
