@@ -4,9 +4,8 @@ from fastapi import FastAPI
 from routers import test, hashtag
 from models import mongoDB
 
-
 app = FastAPI()
-app.include_router(test.router)
+#app.include_router(test.router)
 app.include_router(hashtag.router)
 
 # mongodb = mongoDB()
@@ -21,4 +20,6 @@ app.include_router(hashtag.router)
 @app.get("/")
 def root():
     return {"message": "Hello, insTAG!"}
+
+
 

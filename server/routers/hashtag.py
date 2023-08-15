@@ -1,13 +1,19 @@
 from os import environ
-import time, json
+import time, json, sys, os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from dotenv import load_dotenv
 from instagrapi import Client
 from instagrapi.types import Media 
 from fastapi import APIRouter, Query, status
-from typing import List
+from typing import List, Optional
 from bson.objectid import ObjectId
 from datetime import date, datetime, timedelta
 from models import get_db
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+from time import sleep
+from AI.imageRetrieval import model_predict
 db = get_db()
 
 router = APIRouter(
@@ -17,6 +23,12 @@ router = APIRouter(
 
 load_dotenv()
 cl = Client()
+
+
+username = environ["PROXY_USER_NAME"]
+pw = environ["PROXY_PASSWORD"]
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:10001"
+cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
 #cl.dump_settings('./tmp/dump.json')
@@ -52,11 +64,15 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
                 new_doc["id"] = str(doc["id"])
                 new_doc["date"] = doc["taken_at"]
                 new_doc["user_name"] = doc["user"]["username"]
-                new_doc["image_url"] = doc["thumbnail_url"]
+                if doc["thumbnail_url"] is not None :
+                    new_doc["image_url"] = doc["thumbnail_url"]
+                else:
+                    new_doc["image_url"] = doc["resources"][0]["thumbnail_url"]
                 new_doc["text"] = doc["caption_text"]
                 new_doc["like_count"] = doc["like_count"]
                 new_doc["comment_count"] = doc["comment_count"]
                 new_doc["isAds"] = False
+                new_doc["image_rank"] = 0
                 #광고 여부 
                 check_ads = ['광고', '협찬', '공구']
                 for ads in check_ads:
@@ -105,7 +121,8 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
         db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
  
 @router.get("/")
-async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:int):
+async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url: Optional[str] = None):
+    amount = 10
     res = {}
     query = {}
     query["_id"] = { "$gt": ObjectId(lastId) }
@@ -118,29 +135,49 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
             "$gte": days_ago,
             "$lte": current_date
         }   
+
     #광고 제거 
     if isAds:
         query["isAds"] = {"$ne":True}
+    
+    # #AI 모델 
+    if image_url is not None :
+        cursor = db[tag_id].find()
+        docs = await cursor.to_list(length=None)
+        img_docs = list()
+        for doc in docs:
+            if doc["image_url"] is not None:
+                img_docs.append({"id":str(doc["_id"]), "image_url":doc["image_url"]})
+        sort_images = model_predict(image_url, img_docs)
+        for idx, sort in enumerate(sort_images):
+            await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
 
     #정렬
     sort_op = []
     sort_doc = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
     print(sort_doc)
-    if(sort_doc["isLast"]):
+    if sort_doc["isLast"]:
         sort_op.append(('date', -1))
-    if(sort_doc["isLike"]):
+    if sort_doc["isLike"]:
         sort_op.append(('like_count', -1))
-    if(sort_doc["isComment"]):
+    if sort_doc["isComment"]:
         sort_op.append(('comment_count', -1))
+    if image_url is not None:
+        sort_op.append(('image_rank', 1))
 
-    cursor = db[tag_id].find(query).sort(sort_op)
-    docs = await cursor.to_list(length=amount)
+    if len(sort_op) == 0:
+        cursor = db[tag_id].find(query)
+    else :    
+        cursor = db[tag_id].find(query).sort(sort_op)
         
-    final_doc = await db[tag_id].find_one(sort=[('_id', -1)])
-    
-    if(len(docs)==0): return res
+    docs = await cursor.to_list(length=amount)
 
-    if docs[len(docs)-1]["pk"]==final_doc["pk"]: # 마지막 요청인지 
+    if(len(docs)==0): return res # 결과 X
+
+    # 마지막 요청인지    
+    final_doc = await db[tag_id].find_one(sort=[('_id', -1)])
+
+    if docs[len(docs)-1]["pk"]==final_doc["pk"]:  
         res["isFinal"] = True
     else:
         res["isFinal"] = False 
@@ -175,6 +212,9 @@ async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
         
     await db["tagsId"].find_one_and_update({"_id":ObjectId(tag_id)},{"$set":{"isLast":isLast,"isLike":isLike,"isComment":isComment}})
      
+@router.get("/total")
+async def get_total(tag_id:str):
+    return await db[tag_id].count_documents({})
 
 @router.get("/top")
 async def get_top(period : int):

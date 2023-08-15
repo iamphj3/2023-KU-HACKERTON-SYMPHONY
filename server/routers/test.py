@@ -16,7 +16,7 @@ router = APIRouter(
 
 load_dotenv()
 
-cl = Client()
+#cl = Client()
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
 #cl.login("insta_gadmin", "ins123tag@!")
