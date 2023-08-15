@@ -5,13 +5,15 @@ import { useRecoilState } from 'recoil';
 import { useLocation } from 'react-router-dom';
 import PostCard from './PostCard';
 import { HashtagList, IsAdsState, PeriodState, UploadedImage } from '../../recoil/atom';
-import { getSearchResult } from '../../apis/result';
+import { getSearchResult, getTotalPostNum } from '../../apis/result';
 
 export default function PostResult() {
   const location = useLocation();
   const { searchDataId } = location.state;
+  console.log(searchDataId);
 
   const [postList, setPostList] = useState([]);
+  const [totalPost, setTotalPost] = useState();
   const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
   const [lastId, setLastId] = useState('000000000000000000000000');
   const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
@@ -21,6 +23,16 @@ export default function PostResult() {
   const { ref, inView } = useInView({
     threshold: 0.5,
   });
+
+  const getTotalPost = async () => {
+    try {
+      const total = await getTotalPostNum(searchDataId);
+      console.log('total', total);
+      setTotalPost(total);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const getPost = async () => {
     try {
@@ -38,12 +50,16 @@ export default function PostResult() {
       console.log(postList);
       // setLastId(res.lastId);
     } catch (error) {
-      console.error('Error fetching search results:', error);
+      console.error(error);
     }
   };
+
   useEffect(() => {
+    getTotalPost();
     getPost();
   }, [searchDataId, lastId, periodState, isAdFiltered]);
+
+  useEffect(() => {}, [searchDataId]);
 
   const getMorePost = useCallback(() => {
     // if (postList && postList.results) {
@@ -63,7 +79,7 @@ export default function PostResult() {
     <StPostResult>
       {postList ? (
         <>
-          <p>{`총 ${postList.length}개의 게시물`}</p>
+          <p>{`총 ${totalPost}개의 게시물`}</p>
           <StPostList>
             {postList.map((data) => (
               <div key={data.id} ref={ref}>

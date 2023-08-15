@@ -1,9 +1,19 @@
 import { client } from './axios';
 
+// 총 게시물 개수 API
+export const getTotalPostNum = async (tag_id) => {
+  try {
+    const { data } = await client.get(`/hashtag/total?tag_id=${tag_id}`);
+    return data.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 // 해시태그 조회 API
 export const getSearchResult = async ({ tagId, lastId, period, isAds, image_url }) => {
   try {
-    let url = `/hashtag?tag_id=${tagId}&lastId=${lastId}&period=${period}&isAds=${isAds}`;
+    let url = `/hashtag/?tag_id=${tagId}&lastId=${lastId}&period=${period}&isAds=${isAds}`;
     if (image_url) {
       url += `&image_url=${image_url}`;
     }
