@@ -16,18 +16,15 @@ export default function Result() {
     <StResult>
       <div>
         <h2>검색 결과</h2>
-        <TabSwitcher
-          tabList={tabList}
-          selectedStyle={selectedStyle}
-          noSelectedStyle={noSelectedStyle}
-        />
+        <TabSwitcher tabList={tabList} selectedStyle={selectedStyle} noSelectedStyle={noSelectedStyle} />
       </div>
       <PostResult />
     </StResult>
   );
 }
 
-const StResult = styled.section`  
+const StResult = styled.section`
+  margin-bottom: 12rem;
   & > div {
     display: flex;
     justify-content: space-between;
@@ -35,7 +32,7 @@ const StResult = styled.section`
     margin-bottom: 2.4rem;
 
     & > h2 {
-        ${({ theme }) => theme.fonts.Head1};
+      ${({ theme }) => theme.fonts.Head1};
     }
   }
 `;
