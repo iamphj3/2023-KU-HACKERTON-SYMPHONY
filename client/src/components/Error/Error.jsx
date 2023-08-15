@@ -29,6 +29,8 @@ const StError = styled.section`
   justify-content: center;
   align-items: center;
 
+  height: calc(100vh - 72px);
+
   & > h2 {
     margin-bottom: 0.8rem;
 
