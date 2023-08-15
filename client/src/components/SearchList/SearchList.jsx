@@ -9,6 +9,9 @@ export default function SearchList() {
   const handleAllDelete = () => {
     setHashtagList([]);
   };
+  const handleDeleteTag = (tagToDelete) => {
+    setHashtagList((prevList) => prevList.filter((tag) => tag !== tagToDelete));
+  };
 
   return (
     <StSearchList>
@@ -20,7 +23,7 @@ export default function SearchList() {
       </StSearchInfo>
       <StHashtagList>
         {hashtagList.map((hashtag) => (
-          <HashTag key={hashtag} hashtag={hashtag} />
+          <HashTag key={hashtag} hashtag={hashtag} onDelete={handleDeleteTag} />
         ))}
       </StHashtagList>
     </StSearchList>
