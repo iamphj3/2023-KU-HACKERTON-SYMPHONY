@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { client } from './axios';
 
 // 트랜딩 해시태그 TOP 10 API
