@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 import { useRecoilState } from 'recoil';
 import { HashtagList } from '../../recoil/atom';
+import HashTag from './HashTag';
 
 export default function SearchList() {
   const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
@@ -17,6 +18,11 @@ export default function SearchList() {
           전체 삭제
         </button>
       </StSearchInfo>
+      <StHashtagList>
+        {hashtagList.map((hashtag) => (
+          <HashTag key={hashtag} hashtag={hashtag} />
+        ))}
+      </StHashtagList>
     </StSearchList>
   );
 }
@@ -34,4 +40,10 @@ const StSearchInfo = styled.div`
     color: ${({ theme }) => theme.colors.Gray6};
     ${({ theme }) => theme.fonts.Body2};
   }
+`;
+
+const StHashtagList = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 0.6rem;
 `;
