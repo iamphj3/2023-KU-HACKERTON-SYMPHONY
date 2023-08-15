@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 import { useRecoilState } from 'recoil';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IcSearch } from '../../assets/icons';
 import { HashtagList } from '../../recoil/atom';
 
@@ -8,10 +9,13 @@ export default function HashtagSearch() {
   const [hashtagInput, setHashtagInput] = useState('');
   const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
 
+  const navigate = useNavigate();
+
   const handleSearch = () => {
     if (hashtagInput.trim() !== '') {
       setHashtagList((prevList) => [...prevList, hashtagInput]);
       setHashtagInput('');
+      navigate('/result');
     }
   };
   const handleKeUp = (event) => {
