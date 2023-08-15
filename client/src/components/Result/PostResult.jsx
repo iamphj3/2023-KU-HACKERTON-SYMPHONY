@@ -2,12 +2,16 @@ import { styled } from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect, useCallback } from 'react';
 import { useRecoilState } from 'recoil';
+import { useLocation } from 'react-router-dom';
 import PostCard from './PostCard';
 import { HashtagList } from '../../recoil/atom';
 // import useGetPostList from '../../hooks/useGetPostList';
-import { postSearch } from '../../apis/search';
+import { getSearchResult } from '../../apis/result';
 
 export default function PostResult() {
+  const location = useLocation();
+  const { searchDataId } = location.state;
+
   const [postList, setPostList] = useState([]);
   const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
 

@@ -20,7 +20,7 @@ export default function HashtagSearch() {
       console.log(searchDataId);
 
       // setPostList(searchData);
-      navigate('/result');
+      navigate('/result', { state: { searchDataId } });
     } catch (error) {
       console.error('Error searching hashtags:', error);
     }
