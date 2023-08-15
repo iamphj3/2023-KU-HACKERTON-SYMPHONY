@@ -9,3 +9,13 @@ export const getSearchResult = async ({ _tagId, _lastId, _period, _isAds, _amoun
     console.error(err);
   }
 };
+
+// 해시태그 조회 정렬 API
+export const getSortedResult = async ({ _tagId, _isLast, _isLike, _isComment }) => {
+  try {
+    const { data } = await client.get(`/hashtag/sort?tag_id=${_tagId}&isLast=${_isLast}&isLike=${_isLike}&isComment=${_isComment}`);
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
