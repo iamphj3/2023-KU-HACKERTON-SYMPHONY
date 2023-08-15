@@ -74,6 +74,7 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
                 new_doc["isAds"] = False
                 new_doc["image_rank"] = 0
                 new_doc["sort_rank"] = 0
+
                 #광고 여부 
                 check_ads = ['광고', '협찬', '공구']
                 for ads in check_ads:
@@ -142,6 +143,7 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
         query["isAds"] = {"$ne":True}
     
     # #AI 모델 
+
     if lastId=="000000000000000000000000" and image_url is not None :
         cursor = db[tag_id].find()
         docs = await cursor.to_list(length=None)
@@ -235,6 +237,7 @@ async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
 async def get_total(tag_id:str):
     total = await db[tag_id].count_documents({})
     return {"data" : total}
+
 
 @router.get("/top")
 async def get_top(period : int):
