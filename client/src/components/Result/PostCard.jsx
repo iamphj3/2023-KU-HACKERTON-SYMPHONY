@@ -23,7 +23,7 @@ export default function PostCard({ postData }) {
       <StContent>
         <p>{slicedText}</p>
       </StContent>
-      <p>@{user_name}</p>
+      <p>{`@${user_name}`}</p>
       <p>{formatDate(date).postDate}</p>
     </StPostCard>
   );

@@ -148,13 +148,9 @@ export default function PostResult() {
 
   return (
     <StPostResult>
-      <p>총 100개의 게시물</p>
       {POST_DATA.results.length ? (
         <>
-          <p>
-            총 {POST_DATA.results.length}
-            개의 게시물
-          </p>
+          <p>{`총 ${POST_DATA.results.length}개의 게시물`}</p>
           <StPostList>
             {POST_DATA.results.map((data) => (
               <div key={data.id} ref={ref}>
