@@ -13,3 +13,17 @@ export const postSearch = async (hashtags) => {
     console.error(err);
   }
 };
+
+// 해시태그 id API
+export const getHashtagId = async (hashtags) => {
+  try {
+    const { data } = await client.get('/hashtag/id', {
+      headers: {
+        hashtags: { hashtags },
+      },
+    });
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
