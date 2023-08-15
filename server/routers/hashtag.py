@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from dotenv import load_dotenv
 from instagrapi import Client
 from instagrapi.types import Media 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Query, status, HTTPException
 from typing import List, Optional
 from bson.objectid import ObjectId
 from datetime import date, datetime, timedelta
@@ -206,7 +206,8 @@ async def get_tag_id(hashtags : List[str] = Query(None)):
 
 @router.post("/sort", status_code=status.HTTP_201_CREATED)
 async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
-    if (isLast + isLike + isComment) > 1: return {"message":"하나의 값만 true로 설정할 수 있습니다."}
+    if (isLast + isLike + isComment) > 1: 
+        raise HTTPException(status_code=400, detail="하나의 값만 true로 설정할 수 있습니다.")
 
     sort_op = []
 
