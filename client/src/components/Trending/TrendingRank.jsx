@@ -2,40 +2,20 @@ import { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
 import { getTrendingHashtag } from '../../apis/trending';
 
-const RANK = ['건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집'];
-
-const cachedRankData = {
-  일별: ['건대s맛집', '건대맛집1', '건대맛집2', '건대맛집3', '건대4맛집', '건대5맛집', '건6대맛집', '건대맛7집', '건대맛8집', '건대9집'],
-  주간별: ['주간1', '주간2', '주간3', '주간4', '주간5', '주간6', '주간7', '주간8', '주간9', '주간10'],
-};
-
 export default function TrendingRank({ selectedPeriod }) {
-  const [period, setPeriod] = useState(selectedPeriod);
   const [rank, setRank] = useState([]);
-  const [cachedRank, setCachedRank] = useState(cachedRankData);
-
-  const leftRank = rank.slice(0, 5);
-  const rightRank = rank.slice(5);
 
   const getRank = async () => {
     let reqPeriod;
-    if (period === '일별') {
+    if (selectedPeriod === '일별') {
       reqPeriod = 1;
     }
-    if (period === '주간별') {
+    if (selectedPeriod === '주간별') {
       reqPeriod = 7;
     }
     try {
-      if (cachedRank[selectedPeriod]) {
-        setRank(cachedRank[selectedPeriod]);
-      } else {
-        const rankData = await getTrendingHashtag(reqPeriod);
-        setRank(rankData);
-        setCachedRank((prevCachedData) => ({
-          ...prevCachedData,
-          [selectedPeriod]: rankData,
-        }));
-      }
+      const rankData = await getTrendingHashtag(reqPeriod);
+      setRank(rankData.data);
     } catch (error) {
       console.error('Error fetching trending hashtags:', error);
     }
@@ -45,9 +25,12 @@ export default function TrendingRank({ selectedPeriod }) {
     getRank();
   }, [selectedPeriod]);
 
+  const leftRank = rank.slice(0, 5);
+  const rightRank = rank.slice(5);
+
   return (
     <StTrendingRank>
-      <StLeftColumn>
+      <div>
         <ol>
           {leftRank.map((hashtag, index) => (
             <li key={index}>
@@ -56,17 +39,17 @@ export default function TrendingRank({ selectedPeriod }) {
             </li>
           ))}
         </ol>
-      </StLeftColumn>
-      <StRightColumn>
+      </div>
+      <div>
         <ol>
           {rightRank.map((hashtag, index) => (
             <li key={index}>
-              <span>{index + 1}</span>
+              <span>{index + 6}</span>
               {hashtag}
             </li>
           ))}
         </ol>
-      </StRightColumn>
+      </div>
     </StTrendingRank>
   );
 }
@@ -85,7 +68,3 @@ const StTrendingRank = styled.article`
     ${({ theme }) => theme.fonts.Title2};
   }
 `;
-
-const StLeftColumn = styled.div``;
-
-const StRightColumn = styled.div``;
