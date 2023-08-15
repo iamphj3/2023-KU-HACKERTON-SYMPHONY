@@ -12,15 +12,14 @@ export default function HashtagSearch() {
   const navigate = useNavigate();
 
   const handleSearch = () => {
-    if (hashtagInput.trim() !== '') {
-      setHashtagList((prevList) => [...prevList, hashtagInput]);
-      setHashtagInput('');
-      navigate('/result');
-    }
+    navigate('/result');
   };
   const handleKeUp = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
-      handleSearch();
+      if (hashtagInput.trim() !== '') {
+        setHashtagList((prevList) => [...prevList, hashtagInput]);
+        setHashtagInput('');
+      }
     }
   };
   const handleHashtagInputChange = (e) => {
