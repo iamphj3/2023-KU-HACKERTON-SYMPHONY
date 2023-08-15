@@ -1,5 +1,6 @@
 import { styled } from 'styled-components';
 import { IcComment, IcHeart } from '../../assets/icons';
+import formatDate from '../../utils/formatDate';
 
 export default function PostCard({ postData }) {
   const { comment_count, date, id, image_url, isAds, like_count, pk, text, user_name } = postData;
@@ -20,7 +21,7 @@ export default function PostCard({ postData }) {
         <p>{text}</p>
       </StContent>
       <p>@{user_name}</p>
-      <p>{date}</p>
+      <p>{formatDate(date).postDate}</p>
     </StPostCard>
   );
 }
