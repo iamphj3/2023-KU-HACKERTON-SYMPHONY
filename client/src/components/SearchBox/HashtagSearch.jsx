@@ -4,23 +4,37 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IcSearch } from '../../assets/icons';
 import { HashtagList } from '../../recoil/atom';
+import { postSearch, getHashtagId } from '../../apis/search';
 
 export default function HashtagSearch() {
   const [hashtagInput, setHashtagInput] = useState('');
   const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
+  const [postList, setPostList] = useState([]);
 
   const navigate = useNavigate();
 
-  const handleSearch = () => {
-    if (hashtagInput.trim() !== '') {
-      setHashtagList((prevList) => [...prevList, hashtagInput]);
-      setHashtagInput('');
-      navigate('/result');
+  const handleSearch = async () => {
+    try {
+      const status = await postSearch(hashtagList);
+      let searchDataId;
+      if (status === 201) {
+        searchDataId = await getHashtagId(hashtagList);
+        navigate('/result', { state: { searchDataId } });
+      } else {
+        navigate('/result');
+      }
+      console.log(searchDataId);
+    } catch (error) {
+      console.error('Error searching hashtags:', error);
     }
   };
+
   const handleKeUp = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
-      handleSearch();
+      if (hashtagInput.trim() !== '') {
+        setHashtagList((prevList) => [...prevList, hashtagInput]);
+        setHashtagInput('');
+      }
     }
   };
   const handleHashtagInputChange = (e) => {

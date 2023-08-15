@@ -15,4 +15,16 @@ const HashtagList = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export { UploadedImage, HashtagList };
+const PeriodState = atom({
+  key: 'periodState',
+  default: 0,
+  effects_UNSTABLE: [persistAtom],
+});
+
+const IsAdsState = atom({
+  key: 'isAdsState',
+  default: true,
+  effects_UNSTABLE: [persistAtom],
+});
+
+export { UploadedImage, HashtagList, PeriodState, IsAdsState };
