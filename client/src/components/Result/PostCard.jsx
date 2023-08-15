@@ -4,6 +4,9 @@ import formatDate from '../../utils/formatDate';
 
 export default function PostCard({ postData }) {
   const { comment_count, date, id, image_url, isAds, like_count, pk, text, user_name } = postData;
+
+  const slicedText = text.length > 100 ? `${text.substring(0, 33)}...` : text;
+
   return (
     <StPostCard>
       <img alt="post-thumbnail" src={image_url} />
@@ -18,7 +21,7 @@ export default function PostCard({ postData }) {
         </div>
       </StInteractions>
       <StContent>
-        <p>{text}</p>
+        <p>{slicedText}</p>
       </StContent>
       <p>@{user_name}</p>
       <p>{formatDate(date).postDate}</p>
