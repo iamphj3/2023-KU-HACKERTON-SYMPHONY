@@ -7,4 +7,4 @@ export const client = axios.create({
   },
 });
 
-export const instagGetFetcher = (url) => client.get(url).then((res) => res.data);
+// export const instagGetFetcher = (url) => client.get(url).then((res) => res.data);

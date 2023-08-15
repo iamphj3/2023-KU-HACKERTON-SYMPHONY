@@ -2,6 +2,7 @@ import { styled } from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect, useCallback } from 'react';
 import PostCard from './PostCard';
+// import useGetPostList from '../../hooks/useGetPostList';
 
 const POST_DATA = {
   isFinal: false,
@@ -125,30 +126,52 @@ const POST_DATA = {
 };
 
 export default function PostResult() {
-  const [postList, setPostList] = useState([]);
+  // const [postList, setPostList] = useState([]);
+
+  // const { postList, isLoading, isError, size, setSize } = useGetPostList();
 
   const { ref, inView } = useInView({
     threshold: 0.5,
   });
 
-  const getPostList = useCallback(() => {
-    setPostList(POST_DATA.results);
-  });
+  // const getMorePost = useCallback(() => {
+  //   if (postList && postList.results) {
+  //     setSize((prev) => prev + 1);
+  //   }
+  // }, [postList, setSize]);
 
-  useEffect(() => {
-    getPostList();
-  }, [inView]);
+  // useEffect(() => {
+  //   if (inView && postList.results) {
+  //     getMorePost();
+  //   }
+  // }, [inView]);
 
   return (
     <StPostResult>
       <p>총 100개의 게시물</p>
-      <StPostList>
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-      </StPostList>
+      {POST_DATA.results.length ? (
+        <>
+          <p>
+            총 {POST_DATA.results.length}
+            개의 게시물
+          </p>
+          <StPostList>
+            {POST_DATA.results.map((data) => (
+              <div key={data.id} ref={ref}>
+                <PostCard postData={data} />
+              </div>
+            ))}
+          </StPostList>
+        </>
+      ) : (
+        <StEmptyView>
+          <p>
+            다음 해시태그에 해당하는
+            <br />
+            검색 결과가 없습니다.
+          </p>
+        </StEmptyView>
+      )}
     </StPostResult>
   );
 }
@@ -166,4 +189,13 @@ const StPostList = styled.div`
   justify-items: center;
   row-gap: 4rem;
   column-gap: 0.9rem;
+`;
+
+const StEmptyView = styled.div`
+  & > p {
+    text-align: center;
+
+    color: ${({ theme }) => theme.colors.Gray5};
+    ${({ theme }) => theme.fonts.Body1};
+  }
 `;
