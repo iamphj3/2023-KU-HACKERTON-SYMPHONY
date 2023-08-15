@@ -1,52 +1,36 @@
+
 import os
 import numpy as np
 import tensorflow as tf
 from sklearn.neighbors import NearestNeighbors
-from multiprocessing import Pool
-from skimage.transform import resize
 from urllib.request import urlopen
 import cv2
 
-def apply_transformer(imgs, transformer, parallel=True):
-    if parallel:
-        pool = Pool()
-        imgs_transform = pool.map(transformer, [img for img in imgs])
-        pool.close()
-        pool.join()
-    else:
-        imgs_transform = [transformer(img) for img in imgs]
-    return imgs_transform
-
-# Normalize
-def normalize_img(img):
-    return img / 255.
-
-def resize_img(img, shape_resized):
-    img_resized = resize(img, shape_resized,
-                         anti_aliasing=True,
-                         preserve_range=True)
-    assert img_resized.shape == shape_resized
-    return img_resized
-
-def flatten_img(img):
-    return img.flatten("C")
+from .function.transformer import ImageTransformer
+from .function.image_transform import apply_transformer
 
 #메인 모델
 def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_url":"http"}]
     parallel = True
     
     img_set=[]
+    imgs_test=[]
+
     for data in img_url_list:
-        img=urlopen(data.image_url)
+        img=urlopen(data["image_url"])
         image = np.asarray(bytearray(img.read()), dtype="uint8")
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
         img_set.append(image)
-    
+        
     imgs_train = img_set
-    imgs_test = urlopen(queryImage).read()
-    shape_img = (100,100,3)
+
+    image_test = urlopen(queryImage)
+    image_test = np.asarray(bytearray(image_test.read()), dtype="uint8")
+    image_test = cv2.imdecode(image_test, cv2.IMREAD_COLOR)
+    imgs_test.append(image_test)
 
     #VGGNet 로딩
+    shape_img = (100,100,3)
     model = tf.keras.applications.VGG19(weights='imagenet', include_top=False, input_shape=shape_img)
 
     shape_img_resize = tuple([int(x) for x in model.input.shape[1:]])
@@ -56,16 +40,6 @@ def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_u
 
 
     # 이미지 전처리
-    class ImageTransformer(object):
-
-        def __init__(self, shape_resize):
-            self.shape_resize = shape_resize
-
-        def __call__(self, img):
-            img_transformed = resize_img(img, self.shape_resize)
-            img_transformed = normalize_img(img_transformed)
-            return img_transformed
-
     transformer = ImageTransformer(shape_img_resize)
     imgs_train_transformed = apply_transformer(imgs_train, transformer, parallel=parallel)
     imgs_test_transformed = apply_transformer(imgs_test, transformer, parallel=parallel)

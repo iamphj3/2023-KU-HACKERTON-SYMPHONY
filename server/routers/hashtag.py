@@ -13,7 +13,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from time import sleep
-#from AI.imageRetrieval import model_predict
+from AI.imageRetrieval import model_predict
 db = get_db()
 
 router = APIRouter(
@@ -25,10 +25,10 @@ load_dotenv()
 cl = Client()
 
 
-proxy = "https://spnfcu2wai:f8mfNvr5GH28rCzwxu@gate.smartproxy.com:10001"
+username = environ["PROXY_USER_NAME"]
+pw = environ["PROXY_PASSWORD"]
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:10001"
 cl.set_proxy(proxy)
-after_ip = cl._send_public_request("https://ip.smartproxy.com/json")
-print(after_ip)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
 #cl.dump_settings('./tmp/dump.json')
@@ -121,7 +121,8 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
         db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
  
 @router.get("/")
-async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:int, image_url: Optional[str] = None):
+async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url: Optional[str] = None):
+    amount = 10
     res = {}
     query = {}
     query["_id"] = { "$gt": ObjectId(lastId) }
@@ -134,21 +135,22 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
             "$gte": days_ago,
             "$lte": current_date
         }   
+
     #광고 제거 
     if isAds:
         query["isAds"] = {"$ne":True}
     
     # #AI 모델 
-    # if image_url is not None :
-    #     cursor = db[tag_id].find()
-    #     docs = await cursor.to_list(length=None)
-    #     img_docs = list()
-    #     for doc in docs:
-    #         if doc["image_url"] is not None:
-    #             img_docs.append({"id":str(doc["_id"]), "image_url":doc["image_url"]})
-    #     sort_images = model_predict(image_url, img_docs)
-    #     for idx, sort in enumerate(sort_images):
-    #         await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
+    if image_url is not None :
+        cursor = db[tag_id].find()
+        docs = await cursor.to_list(length=None)
+        img_docs = list()
+        for doc in docs:
+            if doc["image_url"] is not None:
+                img_docs.append({"id":str(doc["_id"]), "image_url":doc["image_url"]})
+        sort_images = model_predict(image_url, img_docs)
+        for idx, sort in enumerate(sort_images):
+            await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
 
     #정렬
     sort_op = []
@@ -162,13 +164,19 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, amount:in
         sort_op.append(('comment_count', -1))
     if image_url is not None:
         sort_op.append(('image_rank', 1))
-    cursor = db[tag_id].find(query).sort(sort_op)
+
+    if len(sort_op) == 0:
+        cursor = db[tag_id].find(query)
+    else :    
+        cursor = db[tag_id].find(query).sort(sort_op)
+        
     docs = await cursor.to_list(length=amount)
 
+    if(len(docs)==0): return res # 결과 X
 
     # 마지막 요청인지    
     final_doc = await db[tag_id].find_one(sort=[('_id', -1)])
-    if(len(docs)==0): return res # 결과 X
+
     if docs[len(docs)-1]["pk"]==final_doc["pk"]:  
         res["isFinal"] = True
     else:
@@ -204,6 +212,9 @@ async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
         
     await db["tagsId"].find_one_and_update({"_id":ObjectId(tag_id)},{"$set":{"isLast":isLast,"isLike":isLike,"isComment":isComment}})
      
+@router.get("/total")
+async def get_total(tag_id:str):
+    return await db[tag_id].count_documents({})
 
 @router.get("/top")
 async def get_top(period : int):
