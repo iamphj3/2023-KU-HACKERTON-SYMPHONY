@@ -27,7 +27,7 @@ cl = Client()
 
 username = environ["PROXY_USER_NAME"]
 pw = environ["PROXY_PASSWORD"]
-proxy = f"https://{username}:{pw}@gate.smartproxy.com:10001"
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:10002"
 cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
@@ -73,6 +73,7 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
                 new_doc["comment_count"] = doc["comment_count"]
                 new_doc["isAds"] = False
                 new_doc["image_rank"] = 0
+                new_doc["sort_rank"] = 0
                 #광고 여부 
                 check_ads = ['광고', '협찬', '공구']
                 for ads in check_ads:
@@ -125,7 +126,7 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
     amount = 10
     res = {}
     query = {}
-    query["_id"] = { "$gt": ObjectId(lastId) }
+    #query["_id"] = { "$gt": ObjectId(lastId) }
 
     #기간 필터 
     current_date = datetime.now()
@@ -141,7 +142,7 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
         query["isAds"] = {"$ne":True}
     
     # #AI 모델 
-    if image_url is not None :
+    if lastId=="000000000000000000000000" and image_url is not None :
         cursor = db[tag_id].find()
         docs = await cursor.to_list(length=None)
         img_docs = list()
@@ -154,33 +155,37 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
 
     #정렬
     sort_op = []
-    sort_doc = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
-    print(sort_doc)
-    if sort_doc["isLast"]:
-        sort_op.append(('date', -1))
-    if sort_doc["isLike"]:
-        sort_op.append(('like_count', -1))
-    if sort_doc["isComment"]:
-        sort_op.append(('comment_count', -1))
     if image_url is not None:
         sort_op.append(('image_rank', 1))
+        if(lastId!="000000000000000000000000"):
+            last_id = await db[tag_id].find_one({"_id":ObjectId(lastId)})
+            query["image_rank"] = { "$gt": last_id["image_rank"] }
+    else:
+        sort_doc = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
+        if sort_doc["isLast"]+sort_doc["isLike"]+sort_doc["isComment"] == 1:
+            sort_op.append(('sort_rank', 1))
+            if(lastId!="000000000000000000000000"):
+                last_id = await db[tag_id].find_one({"_id":ObjectId(lastId)})
+                query["sort_rank"] = { "$gt": last_id["sort_rank"] }  
 
     if len(sort_op) == 0:
+        query["_id"] = { "$gt": ObjectId(lastId) }
         cursor = db[tag_id].find(query)
     else :    
         cursor = db[tag_id].find(query).sort(sort_op)
-        
+    
     docs = await cursor.to_list(length=amount)
 
-    if(len(docs)==0): return res # 결과 X
-
-    # 마지막 요청인지    
-    final_doc = await db[tag_id].find_one(sort=[('_id', -1)])
-
-    if docs[len(docs)-1]["pk"]==final_doc["pk"]:  
+    # 마지막 요청인지 
+    if(len(docs)==0): 
         res["isFinal"] = True
-    else:
-        res["isFinal"] = False 
+        return res # 결과 X
+    if(len(docs)<amount):
+        res["isFinal"] = True
+    else : res["isFinal"] = False 
+
+    query_id = {}
+    query_id["_id"] = { "$gt": ObjectId(lastId) }
     
     results = list()
     for doc in docs:
@@ -202,14 +207,28 @@ async def get_tag_id(hashtags : List[str] = Query(None)):
 
 @router.post("/sort", status_code=status.HTTP_201_CREATED)
 async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
+    if (isLast + isLike + isComment) > 1: return {"message":"하나의 값만 true로 설정할 수 있습니다."}
+
+    sort_op = []
+
     #인덱스 
     if(isLike):
         await db[tag_id].create_index([('like_count', -1)])
+        sort_op.append(('like_count', -1))
     if(isLast):
         await db[tag_id].create_index([('date', -1)])
+        sort_op.append(('date', -1))
     if(isComment):
         await db[tag_id].create_index([('comment_count', -1)])
-        
+        sort_op.append(('comment_count', -1))
+    
+    if (isLast + isLike + isComment) == 1 :
+        cursor = db[tag_id].find().sort(sort_op)
+        docs = await cursor.to_list(length=None)
+
+        for idx, doc in enumerate(docs):
+            await db[tag_id].find_one_and_update({"_id":ObjectId(doc["_id"])},{"$set":{"sort_rank":idx}})
+                
     await db["tagsId"].find_one_and_update({"_id":ObjectId(tag_id)},{"$set":{"isLast":isLast,"isLike":isLike,"isComment":isComment}})
      
 @router.get("/total")
