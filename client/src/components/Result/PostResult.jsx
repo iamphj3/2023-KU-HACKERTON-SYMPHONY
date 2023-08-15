@@ -7,6 +7,7 @@ import { HashtagList, IsAdsState, PeriodState, UploadedImage } from '../../recoi
 import { getSearchResult, getTotalPostNum } from '../../apis/result';
 
 export default function PostResult({ searchDataId }) {
+  const [searchId, setSearchId] = useState(searchDataId);
   const [postList, setPostList] = useState([]);
   const [totalPost, setTotalPost] = useState();
   const [lastId, setLastId] = useState('000000000000000000000000');
@@ -14,13 +15,14 @@ export default function PostResult({ searchDataId }) {
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setImageUrl] = useRecoilState(UploadedImage);
 
+  console.log(searchId, 'searchId');
   const { ref, inView } = useInView({
     threshold: 0.5,
   });
 
   const getTotalPost = async () => {
     try {
-      const total = await getTotalPostNum(searchDataId);
+      const total = await getTotalPostNum(searchId);
       setTotalPost(total);
     } catch (error) {
       console.error(error);
@@ -30,12 +32,13 @@ export default function PostResult({ searchDataId }) {
   const getPost = async () => {
     try {
       const posts = await getSearchResult({
-        tagId: searchDataId,
+        tagId: searchId,
         lastId,
         period: periodState,
         isAds: isAdFiltered,
         image_url: imageUrl,
       });
+      console.log('posts', posts);
 
       const postnum = posts.results.length - 1;
       setLastId(posts.results[postnum].id);
@@ -46,11 +49,11 @@ export default function PostResult({ searchDataId }) {
   };
 
   useEffect(() => {
-    if (searchDataId) {
+    if (searchId) {
       getTotalPost();
       getPost();
     }
-  }, [searchDataId]);
+  }, []);
 
   useEffect(() => {
     if (inView) {
@@ -60,7 +63,7 @@ export default function PostResult({ searchDataId }) {
 
   return (
     <StPostResult>
-      {searchDataId ? (
+      {searchId ? (
         <>
           <p>{`총 ${totalPost}개의 게시물`}</p>
           <StPostList>
