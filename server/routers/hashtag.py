@@ -179,10 +179,9 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
     # 마지막 요청인지 
     if(len(docs)==0): 
         res["isFinal"] = True
-        return res # 결과 X
-    if(len(docs)<amount):
-        res["isFinal"] = True
-    else : res["isFinal"] = False 
+        return {"data" : res} # 결과 X
+    
+    res["isFinal"] = False 
 
     query_id = {}
     query_id["_id"] = { "$gt": ObjectId(lastId) }
@@ -233,7 +232,8 @@ async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
      
 @router.get("/total")
 async def get_total(tag_id:str):
-    return await db[tag_id].count_documents({})
+    total = await db[tag_id].count_documents({})
+    return {"data" : total}
 
 @router.get("/top")
 async def get_top(period : int):
@@ -268,4 +268,4 @@ async def get_top(period : int):
     result = list()
     for doc in docs:
         result.append(doc.get('_id'))
-    return result   
+    return {"data" : result}
