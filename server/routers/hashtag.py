@@ -14,6 +14,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from time import sleep
 from AI.imageRetrieval import model_predict
+from models.instagrapi_exceptions import handle_exception
 db = get_db()
 
 router = APIRouter(
@@ -23,7 +24,7 @@ router = APIRouter(
 
 load_dotenv()
 cl = Client()
-
+cl.handle_exception = handle_exception
 
 username = environ["PROXY_USER_NAME"]
 pw = environ["PROXY_PASSWORD"]
