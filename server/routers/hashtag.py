@@ -194,7 +194,7 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
     res["results"] = docs
     return {"data" : res}
 
-@router.get("/hashtag/id")
+@router.get("/id")
 async def get_tag_id(hashtags : List[str] = Query(None)):
     find_tags = list()
     for tag in hashtags:
@@ -243,7 +243,6 @@ async def get_top(period : int):
     current_date = datetime.today()
     days_ago = current_date - timedelta(days=period)
     days_ago = days_ago.replace(hour=0, minute=0, second=0, microsecond=0)
-    print(days_ago)
     pipeline = [
         {
             "$match": {
