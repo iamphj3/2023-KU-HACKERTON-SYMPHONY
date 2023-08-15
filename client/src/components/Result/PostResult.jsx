@@ -10,11 +10,9 @@ import { getSearchResult, getTotalPostNum } from '../../apis/result';
 export default function PostResult() {
   const location = useLocation();
   const { searchDataId } = location.state;
-  console.log(searchDataId);
 
   const [postList, setPostList] = useState([]);
   const [totalPost, setTotalPost] = useState();
-  const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
   const [lastId, setLastId] = useState('000000000000000000000000');
   const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
@@ -27,7 +25,6 @@ export default function PostResult() {
   const getTotalPost = async () => {
     try {
       const total = await getTotalPostNum(searchDataId);
-      console.log('total', total);
       setTotalPost(total);
     } catch (error) {
       console.error(error);
@@ -36,7 +33,6 @@ export default function PostResult() {
 
   const getPost = async () => {
     try {
-      console.log(searchDataId, lastId, periodState, isAdFiltered, imageUrl);
       const res = await getSearchResult({
         tagId: searchDataId,
         lastId,
@@ -44,11 +40,9 @@ export default function PostResult() {
         isAds: isAdFiltered,
         image_url: imageUrl,
       });
-      console.log(res);
-
+      console.log('res', res);
+      setLastId(res.results[9].id);
       setPostList((prevList) => [...prevList, ...res.results]);
-      console.log(postList);
-      // setLastId(res.lastId);
     } catch (error) {
       console.error(error);
     }
@@ -57,23 +51,18 @@ export default function PostResult() {
   useEffect(() => {
     getTotalPost();
     getPost();
-  }, [searchDataId, lastId, periodState, isAdFiltered]);
-
-  useEffect(() => {}, [searchDataId]);
-
-  const getMorePost = useCallback(() => {
-    // if (postList && postList.results) {
-    // const mergedList = postList.flatMap((post) => [post]).concat(nextposts);
-    // setPostList(mergedList);
-    // setPostList((prevList) => ({ ...prevList }));
-    // }
-  }, [postList]);
+  }, []);
 
   useEffect(() => {
+    console.log(lastId);
+    console.log(postList[postList.length - 1]?.id);
     if (inView) {
-      getMorePost();
+      getPost();
     }
   }, [inView]);
+
+  console.log(inView);
+  console.log(postList);
 
   return (
     <StPostResult>

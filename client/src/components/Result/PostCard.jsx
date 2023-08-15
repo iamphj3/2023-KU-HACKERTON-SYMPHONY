@@ -57,6 +57,7 @@ const StPostCard = styled.article`
     object-fit: cover;
 
     width: 100%;
+    min-width: 16.8rem;
     height: 16.8rem;
     margin-bottom: 0.9rem;
 
