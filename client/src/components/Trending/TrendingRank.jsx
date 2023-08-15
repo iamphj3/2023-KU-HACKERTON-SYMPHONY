@@ -4,17 +4,38 @@ import { getTrendingHashtag } from '../../apis/trending';
 
 const RANK = ['건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집'];
 
-export default function TrendingRank(selectedPeriod) {
+const cachedRankData = {
+  일별: ['건대s맛집', '건대맛집1', '건대맛집2', '건대맛집3', '건대4맛집', '건대5맛집', '건6대맛집', '건대맛7집', '건대맛8집', '건대9집'],
+  주간별: ['주간1', '주간2', '주간3', '주간4', '주간5', '주간6', '주간7', '주간8', '주간9', '주간10'],
+};
+
+export default function TrendingRank({ selectedPeriod }) {
   const [period, setPeriod] = useState(selectedPeriod);
   const [rank, setRank] = useState([]);
+  const [cachedRank, setCachedRank] = useState(cachedRankData);
 
-  const leftRank = RANK.slice(0, 5);
-  const rightRank = RANK.slice(5);
+  const leftRank = rank.slice(0, 5);
+  const rightRank = rank.slice(5);
 
   const getRank = async () => {
+    let reqPeriod;
+    if (period === '일별') {
+      reqPeriod = 1;
+    }
+    if (period === '주간별') {
+      reqPeriod = 7;
+    }
     try {
-      const rankData = await getTrendingHashtag(selectedPeriod);
-      setRank(rankData);
+      if (cachedRank[selectedPeriod]) {
+        setRank(cachedRank[selectedPeriod]);
+      } else {
+        const rankData = await getTrendingHashtag(reqPeriod);
+        setRank(rankData);
+        setCachedRank((prevCachedData) => ({
+          ...prevCachedData,
+          [selectedPeriod]: rankData,
+        }));
+      }
     } catch (error) {
       console.error('Error fetching trending hashtags:', error);
     }
@@ -29,7 +50,7 @@ export default function TrendingRank(selectedPeriod) {
       <StLeftColumn>
         <ol>
           {leftRank.map((hashtag, index) => (
-            <li key={hashtag}>
+            <li key={index}>
               <span>{index + 1}</span>
               {hashtag}
             </li>
@@ -39,7 +60,7 @@ export default function TrendingRank(selectedPeriod) {
       <StRightColumn>
         <ol>
           {rightRank.map((hashtag, index) => (
-            <li key={hashtag}>
+            <li key={index}>
               <span>{index + 1}</span>
               {hashtag}
             </li>
