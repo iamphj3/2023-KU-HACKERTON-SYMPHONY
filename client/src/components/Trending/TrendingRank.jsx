@@ -1,57 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
+import { getTrendingHashtag } from '../../apis/trending';
+
+const RANK = ['건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집', '건대맛집'];
 
 export default function TrendingRank(selectedPeriod) {
   const [period, setPeriod] = useState(selectedPeriod);
+  const [rank, setRank] = useState([]);
+
+  const leftRank = RANK.slice(0, 5);
+  const rightRank = RANK.slice(5);
+
+  const getRank = async () => {
+    try {
+      const rankData = await getTrendingHashtag(selectedPeriod);
+      setRank(rankData);
+    } catch (error) {
+      console.error('Error fetching trending hashtags:', error);
+    }
+  };
+
+  useEffect(() => {
+    getRank();
+  }, [selectedPeriod]);
 
   return (
     <StTrendingRank>
       <StLeftColumn>
         <ol>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
+          {leftRank.map((hashtag, index) => (
+            <li key={hashtag}>
+              <span>{index + 1}</span>
+              {hashtag}
+            </li>
+          ))}
         </ol>
       </StLeftColumn>
       <StRightColumn>
         <ol>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
-          <li>
-            <span>1</span>
-            건대맛집
-          </li>
+          {rightRank.map((hashtag, index) => (
+            <li key={hashtag}>
+              <span>{index + 1}</span>
+              {hashtag}
+            </li>
+          ))}
         </ol>
       </StRightColumn>
     </StTrendingRank>

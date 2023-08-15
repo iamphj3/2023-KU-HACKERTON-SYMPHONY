@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import { getToday } from '../../utils';
 import TrendingRank from './TrendingRank';
-import { getTrendingHashtag } from '../../apis/trending';
 
 const TRENDING_TABS = {
   tabList: ['일별', '주간별'],
@@ -21,7 +20,6 @@ export default function Trending() {
     setSeletedPeriod(tab);
   };
 
-  console.log(selectedPeriod);
   return (
     <StTrending>
       <h3>
