@@ -1,4 +1,5 @@
 import { styled } from 'styled-components';
+import { useState, useEffect } from 'react';
 import { IcComment, IcHeart } from '../../assets/icons';
 import { formatDate } from '../../utils';
 
@@ -6,10 +7,26 @@ export default function PostCard({ postData }) {
   const { comment_count, date, id, image_url, isAds, like_count, pk, text, user_name } = postData;
 
   const slicedText = `${text.substring(0, 31)}...`;
+  const [encodedUrl, setEncodedUrl] = useState();
+
+  useEffect(() => {
+    const encodeAndSetImage = async (imageUrl) => {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEncodedUrl(reader.result);
+      };
+      reader.readAsDataURL(blob);
+    };
+
+    encodeAndSetImage(image_url);
+  }, []);
 
   return (
     <StPostCard>
-      <img alt="post-thumbnail" src={image_url} />
+      {encodedUrl && <img alt="post-thumbnail" src={encodedUrl} />}
       <StInteractions>
         <div>
           <IcHeart />
