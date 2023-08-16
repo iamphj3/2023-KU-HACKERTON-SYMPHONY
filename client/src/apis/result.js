@@ -19,7 +19,6 @@ export const getSearchResult = async ({ tagId, lastId, period, isAds, image_url 
       url += `&image_url=${image_url}`;
     }
     const { data } = await client.get(url);
-    console.log(url, 'url');
     console.log(data, 'data');
     return data.data;
   } catch (err) {
@@ -32,7 +31,10 @@ export const getSearchResult = async ({ tagId, lastId, period, isAds, image_url 
 export const getSortedResult = async (tagId, isLast, isLike, isComment) => {
   try {
     console.log(tagId, isLast, isLike, isComment);
-    const { data } = await client.get(`/hashtag/sort?tag_id=${tagId}&isLast=${isLast}&isLike=${isLike}&isComment=${isComment}`);
+    const data = await client.get(
+      `/hashtag/sort?tag_id=${tagId}&isLast=${isLast}&isLike=${isLike}&isComment=${isComment}`,
+    );
+    console.log(data);
     return data;
   } catch (err) {
     console.error(err);

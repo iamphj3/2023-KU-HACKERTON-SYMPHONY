@@ -15,7 +15,6 @@ export default function PostResult({ searchDataId }) {
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setImageUrl] = useRecoilState(UploadedImage);
 
-  console.log(searchId, 'searchId');
   const { ref, inView } = useInView({
     threshold: 0.5,
   });
@@ -38,7 +37,6 @@ export default function PostResult({ searchDataId }) {
         isAds: isAdFiltered,
         image_url: imageUrl,
       });
-      console.log('posts', posts);
 
       const postnum = posts.results.length - 1;
       setLastId(posts.results[postnum].id);

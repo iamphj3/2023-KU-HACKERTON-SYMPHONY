@@ -18,8 +18,12 @@ const RESULT_TABS = {
 };
 
 export default function Result() {
-  const location = useLocation();
-  const searchDataId = location.state ? location.state.searchDataId : null;
+  // const location = useLocation();/
+  // const searchDataId = location.state ? location.state.searchDataId : null;
+
+  const params = new URLSearchParams(location.search);
+  const searchDataId = params.get('tagid');
+  console.log(searchDataId);
 
   const { tabList, selectedStyle, noSelectedStyle } = RESULT_TABS;
   const [selectedTab, setSeletedTab] = useState('최신순');
@@ -28,17 +32,21 @@ export default function Result() {
     setSeletedTab(tab);
     const queryParams = RESULT_TABS.queryParameters[tab];
     const { isLast, isLike, isComment } = queryParams;
-    // console.log(isLast, isLike, isComment);
 
     const res = await getSortedResult(searchDataId, isLast, isLike, isComment);
-    console.log(res);
+    // console.log(res);
   };
 
   return (
     <StResult>
       <div>
         <h2>검색 결과</h2>
-        <TabSwitcher tabList={tabList} selectedStyle={selectedStyle} noSelectedStyle={noSelectedStyle} onTabChange={handleTabChange} />
+        <TabSwitcher
+          tabList={tabList}
+          selectedStyle={selectedStyle}
+          noSelectedStyle={noSelectedStyle}
+          onTabChange={handleTabChange}
+        />
       </div>
       <PostResult searchDataId={searchDataId} />
     </StResult>

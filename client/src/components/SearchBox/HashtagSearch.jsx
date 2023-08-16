@@ -16,14 +16,8 @@ export default function HashtagSearch() {
   const handleSearch = async () => {
     try {
       const status = await postSearch(hashtagList);
-      let searchDataId;
-      if (status === 201) {
-        searchDataId = await getHashtagId(hashtagList);
-        navigate('/result', { state: { searchDataId } });
-      } else {
-        navigate('/result');
-      }
-      console.log(searchDataId);
+      const searchDataId = await getHashtagId(hashtagList);
+      navigate(`/result?tagid=${searchDataId}`);
     } catch (error) {
       console.error('Error searching hashtags:', error);
     }
