@@ -76,7 +76,7 @@ export default function PostResult({ searchDataId }) {
 
   return (
     <StPostResult key={searchId}>
-      {searchId ? (
+      {searchId !== 'null' ? (
         loading ? (
           <PostLayout />
         ) : (

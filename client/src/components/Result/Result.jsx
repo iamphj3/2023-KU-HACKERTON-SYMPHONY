@@ -13,10 +13,6 @@ export default function Result() {
   const params = new URLSearchParams(location.search);
   const searchDataId = params.get('tagid');
 
-  // useEffect(() => {
-  //   window.location.reload();
-  // }, []);
-
   return (
     <StResult>
       <ResultTab searchDataId={searchDataId} />

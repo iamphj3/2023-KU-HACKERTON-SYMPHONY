@@ -10,7 +10,6 @@ export const postSearch = async (period, isAds, hashtags, image_url) => {
     };
 
     if (image_url) {
-      console.log(image_url);
       requestPayload.image_url = image_url;
     }
 
@@ -27,8 +26,10 @@ export const postSearch = async (period, isAds, hashtags, image_url) => {
 export const getHashtagId = async (hashtags) => {
   try {
     const hashtagsQueryParam = hashtags.map((tag) => `hashtags=${tag}`).join('&');
-    const { data } = await client.get(`/hashtag/id?${hashtagsQueryParam}`);
-    return data.data.tag_id;
+    const data = await client.get(`/hashtag/id?${hashtagsQueryParam}`);
+
+    if (data.status === 200) return data.data.data.tag_id;
+    if (data.status === 204) return null;
   } catch (err) {
     console.error(err);
     throw err;
