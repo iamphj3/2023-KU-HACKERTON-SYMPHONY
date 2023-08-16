@@ -74,7 +74,7 @@ def get_hastag_medias(tag: str, amount:int):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def post_hashtags(hashtags : List[str] = Query(None)):
+async def post_hashtags(hashtags : List[str] = Query(None), image_url: Optional[str] = None):
     current_date = datetime.today()
 
     #top 기록 
@@ -111,7 +111,19 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
                 if len(result)!=0:
                     await db[tag].insert_many(result)
 
-        #조인 테이블 생성
+    #AI 모델 
+    if image_url is not None :
+        cursor = db[tag_id].find()
+        docs = await cursor.to_list(length=None)
+        img_docs = list()
+        for doc in docs:
+            if doc["image_url"] is not None:
+                img_docs.append({"id":str(doc["_id"]), "image_url":doc["image_url"]})
+        sort_images = model_predict(image_url, img_docs)
+        for idx, sort in enumerate(sort_images):
+            await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
+
+    #조인 테이블 생성
         await tags_union(tag_id, hashtags)
         return {"status": 201, "message": "검색 종료"}
 
@@ -162,7 +174,7 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
  #
  ##[GET] 해시태그 검색 결과 
 @router.get("/")
-async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url: Optional[str] = None):
+async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool):
     amount = 10
     res = {}
     query = {}
@@ -180,19 +192,6 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
     #광고 제거 
     if isAds:
         query["isAds"] = {"$ne":True}
-    
-    # #AI 모델 
-
-    if lastId=="000000000000000000000000" and image_url is not None :
-        cursor = db[tag_id].find()
-        docs = await cursor.to_list(length=None)
-        img_docs = list()
-        for doc in docs:
-            if doc["image_url"] is not None:
-                img_docs.append({"id":str(doc["_id"]), "image_url":doc["image_url"]})
-        sort_images = model_predict(image_url, img_docs)
-        for idx, sort in enumerate(sort_images):
-            await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
 
     #정렬
     sort_op = []
