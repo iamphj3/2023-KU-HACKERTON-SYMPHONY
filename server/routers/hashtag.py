@@ -16,7 +16,7 @@ from time import sleep
 from AI.imageRetrieval import model_predict
 from models.instagrapi_exceptions import handle_exception
 import concurrent.futures
-import asyncio
+import random
 from pydantic import BaseModel
 db = get_db()
 
@@ -31,18 +31,24 @@ cl.handle_exception = handle_exception
 
 username = environ["PROXY_USER_NAME"]
 pw = environ["PROXY_PASSWORD"]
-proxy = f"https://{username}:{pw}@gate.smartproxy.com:7000"
+port = list()
+for i in range(100):
+    port.append(10000+i)
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:"+str(port[0])
 cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
 #cl.dump_settings('./tmp/dump.json')
 
 cl.load_settings('./tmp/dump.json')
-cl.get_timeline_feed()
+cl.get_timeline_feed() 
 
-def get_hastag_medias(tag: str, amount:int):
-    print(tag)
-    medias = cl.hashtag_medias_recent_v1(tag, amount=amount)
+def get_hashtag_medias(medias):
+    #start = time.time()
+    #print(tag)
+    #medias = cl.hashtag_medias_recent_v1(tag, amount=amount)
+    #print("1) tag:"+tag+" "+" amount:"+str(amount)+" timetotal:", time.time() - start) 
+    #start = time.time()
     new_data = []
     for media in medias:
         doc = media.dict()
@@ -70,8 +76,12 @@ def get_hastag_medias(tag: str, amount:int):
                 new_doc["isAds"] = True
                 break
         new_data.append(new_doc)
-        
+
+    #print("2) tag:"+tag+" "+" amount:"+str(amount)+" timetotal:", time.time() - start) 
     return new_data
+
+#def process_function(tag, amount):
+#    return cl.hashtag_medias_recent_v1(tag, amount=amount)
 
 class Hashtag(BaseModel):
     period : int
@@ -82,6 +92,10 @@ class Hashtag(BaseModel):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_hashtags(hastag : Hashtag):
+    #프록시 설정
+    idx = random.randrange(1,100)
+    new_proxy = f"https://{username}:{pw}@gate.smartproxy.com:"+str(port[idx])
+    cl.set_proxy(new_proxy)
     start = time.time()
     current_date = datetime.today()
 
@@ -105,24 +119,30 @@ async def post_hashtags(hastag : Hashtag):
     tag_id = str(result.inserted_id)
 
     #검색
-    fix_amount = 80
+    fix_amount = 50
     amount = (int)(fix_amount/len(hastag.hashtags))
+    if(amount<20): amount = 20
     print(amount)
     collection_names = await db.list_collection_names()
     
     results = []
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ProcessPoolExecutor() as executor:
         for tag in hastag.hashtags:
-            if not(tag in collection_names): # 중복 확인
-                future = executor.submit(get_hastag_medias, tag, amount)
+            if not(tag in collection_names):  # 중복 확인
+                future = executor.submit(cl.hashtag_medias_recent_v1, tag, amount)
                 results.append(future)
-
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     for tag in hastag.hashtags:
+    #         if not(tag in collection_names): # 중복 확인
+    #             future = executor.submit(get_hashtag_medias, tag, amount)
+    #             results.append(future)
 
     for tag, future in zip(hastag.hashtags, results):
         if future.done():
             result = future.result()
-            if len(result)!=0:
-                await db[tag].insert_many(result)
+            data = get_hashtag_medias(result)
+            if len(data)!=0:
+                await db[tag].insert_many(data)
 
 
     #조인 테이블 생성
@@ -151,7 +171,7 @@ async def post_hashtags(hastag : Hashtag):
         for idx, sort in enumerate(sort_images):
             await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
     
-    print("amount"+str(len(hastag.hashtags))+" timetotal: ", time.time() - start)
+    print("total time// amount:"+str(amount)+" timetotal:", time.time() - start)
     return {"status": 201, "message": "검색 종료"}
 
 

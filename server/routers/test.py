@@ -43,6 +43,7 @@ def resize_image(url):
 
 @router.get("/list/v1")
 def hashtag_list_v1(tag: str, amount: int):
+    cl.set_proxy(proxy)
     start = time.time()
     medias = cl.hashtag_medias_top_v1(tag, amount=amount)
     print("amount"+str(amount)+" timetotal: ", time.time() - start)
