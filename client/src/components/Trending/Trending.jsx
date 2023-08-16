@@ -20,6 +20,8 @@ export default function Trending() {
     setSeletedPeriod(tab);
   };
 
+  const selectedTabIndex = tabList.indexOf(selectedPeriod);
+
   return (
     <StTrending>
       <h3>
@@ -28,7 +30,13 @@ export default function Trending() {
       </h3>
       <div>
         <time dateTime={datetime}>{today}</time>
-        <TabSwitcher tabList={tabList} selectedStyle={selectedStyle} noSelectedStyle={noSelectedStyle} onTabChange={handleTabChange} />
+        <TabSwitcher
+          selectedtab={selectedTabIndex}
+          tabList={tabList}
+          selectedStyle={selectedStyle}
+          noSelectedStyle={noSelectedStyle}
+          onTabChange={handleTabChange}
+        />
       </div>
       <TrendingRank selectedPeriod={selectedPeriod} />
     </StTrending>

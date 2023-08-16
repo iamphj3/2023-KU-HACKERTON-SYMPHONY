@@ -1,11 +1,20 @@
 import { styled } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import { IcInstagLogo } from '../../../assets/icons';
 
 export default function Header() {
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   return (
     <StHeader>
       <h1 className="sr-only">insTAG</h1>
-      <IcInstagLogo />
+      <button type="button" onClick={handleLogoClick}>
+        <IcInstagLogo />
+      </button>
     </StHeader>
   );
 }
@@ -27,5 +36,5 @@ const StHeader = styled.header`
     width: 1px;
     padding: 0;
     border: 0;
-}
+  }
 `;
