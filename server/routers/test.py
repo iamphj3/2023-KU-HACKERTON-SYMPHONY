@@ -38,6 +38,21 @@ def hashtag_list_v1(tag: str, amount: int):
     print("amount"+str(amount)+" timetotal: ", time.time() - start)
     return medias[0].dict()
 
+@router.get("/recent/v1")
+def hashtag_list_v1(tag: str, amount: int):
+    start = time.time()
+    medias = cl.hashtag_medias_recent_v1(tag, amount=amount)
+    print("amount"+str(amount)+" timetotal: ", time.time() - start)
+    return medias[0].dict()
+
+@router.get("/recent")
+def hashtag_list_v1(tag: str, amount: int):
+    start = time.time()
+    medias = cl.hashtag_medias_recent(tag, amount=amount)
+    print("amount"+str(amount)+" timetotal: ", time.time() - start)
+    return medias[0].dict()
+
+
 @router.get("/list/a1")
 def hashtag_list_a1(tag: str, amount: int):
     start = time.time()
