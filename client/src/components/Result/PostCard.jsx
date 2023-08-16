@@ -10,7 +10,6 @@ export default function PostCard({ postData }) {
   const [encodedUrl, setEncodedUrl] = useState();
 
   console.log('image_url', image_url);
-  console.log('encodedUrl', encodedUrl);
 
   const handlePostCardClick = () => {
     if (postData.instagram_url) {
@@ -20,7 +19,7 @@ export default function PostCard({ postData }) {
 
   useEffect(() => {
     const encodeAndSetImage = async (imageUrl) => {
-      const response = await fetch(imageUrl);
+      const response = await fetch(imageUrl, { method: 'GET', mode: 'no-cors' });
       const blob = await response.blob();
 
       const reader = new FileReader();
@@ -32,6 +31,8 @@ export default function PostCard({ postData }) {
 
     encodeAndSetImage(image_url);
   }, []);
+
+  console.log('encodedUrl', encodedUrl);
 
   return (
     <StPostCard onClick={handlePostCardClick}>
