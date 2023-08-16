@@ -4,6 +4,31 @@
   <img src="https://user-images.githubusercontent.com/73213437/261106021-5583832b-1b9a-4e90-a43a-20e3e4856472.png" alt="instag" />
 </div>
 
+[심포니_최종제출과제.pdf](https://github.com/iamphj3/2023-KU-HACKERTON-SYMPHONY/files/12364198/_.pdf)
+<details>
+  <summary>심포니_insTag_판넬</summary>
+  <br />
+  <img src="https://user-images.githubusercontent.com/73213437/261162180-f8e5a8e8-2d61-4304-ba6a-b870ed1673da.png" alt="판넬" />
+</details>
+<details>
+  <summary>심포니_insTag_발표자료</summary>
+  <br />
+  <img src="https://user-images.githubusercontent.com/73213437/261161520-8aabed1e-3938-4529-812c-bc95a19c6d28.png" alt="장표1" />
+  <img src="https://user-images.githubusercontent.com/73213437/261161522-312d1a63-5c4c-4baa-bdcd-63d06355b5ad.png" alt="장표2" />
+  <img src="https://user-images.githubusercontent.com/73213437/261161525-407e734c-ea6f-42c0-b215-4ecfff866a2c.png" alt="장표3" />
+  <img src="https://user-images.githubusercontent.com/73213437/261161529-d23e8ed2-aee2-4c01-8365-d8dec7119c8c.png" alt="장표4" />
+</details>
+
+
+## ✨ Demo Video
+
+
+https://github.com/iamphj3/2023-KU-HACKERTON-SYMPHONY/assets/73213437/34584111-ada8-47e3-a75d-8ed1a19a4b40
+
+
+<br />
+
+
 ## ✨ Project name and Logo
 
 <div align="center">
@@ -121,7 +146,7 @@ insTAG는 MZ 세대에게 맞춤화된 상세 필터링과 정렬 기능을 통�
 | Framework              | ![Anaconda](https://user-images.githubusercontent.com/73213437/261097042-3ef56541-6c41-48f5-bf7e-96bd44ec160a.png)                                                                                                                |
 | Programming Language | ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=Python&logoColor=white)                                                                                               |
 | ML(Machine Learning) Framework  | ![Tensorflow](https://user-images.githubusercontent.com/73213437/261097070-8635a464-27a4-463c-bb04-463662c445cf.png)  |
-| ML(Machine Learning) Framework  | ![Keras](https://user-images.githubusercontent.com/73213437/261097096-4bfcc946-4b25-4fe1-a0cb-962957ccce5c.png) ![Scikit-learn](https://user-images.githubusercontent.com/73213437/261097108-0a9dc705-e0b9-4e8b-afba-3a755da770fc.png)  |
+| ML(Machine Learning) Library  | ![Keras](https://user-images.githubusercontent.com/73213437/261097096-4bfcc946-4b25-4fe1-a0cb-962957ccce5c.png) |
 
 ## ✨ License
 
@@ -152,7 +177,3 @@ insTAG는 MZ 세대에게 맞춤화된 상세 필터링과 정렬 기능을 통�
   SOFTWARE.
 </details>
 
-
-## ✨ References
-
-- [링크 제목](https://naver.com/)
