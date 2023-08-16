@@ -6,6 +6,7 @@ from instagrapi.types import Media
 from fastapi import APIRouter, Query
 from typing import List
 from models import get_db
+from models.instagrapi_exceptions import handle_exception
 
 db = get_db()
 
@@ -15,29 +16,26 @@ router = APIRouter(
 )
 
 load_dotenv()
+cl = Client()
+cl.handle_exception = handle_exception
 
-#cl = Client()
+username = environ["PROXY_USER_NAME"]
+pw = environ["PROXY_PASSWORD"]
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:10011"
+cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
-#cl.login("insta_gadmin", "ins123tag@!")
 #cl.dump_settings('./tmp/dump.json')
-#cl.login_by_sessionid(os.environ["SESSION_ID"])
-#cl.set_proxy("https://61.37.223.152:8080")
 
-#cl.load_settings('./tmp/dump.json')
-#cl.get_timeline_feed()
+cl.load_settings('./tmp/dump.json')
+cl.get_timeline_feed()
 
 
 @router.get("/list/v1")
 def hashtag_list_v1(tag: str, amount: int):
     start = time.time()
     medias = cl.hashtag_medias_top_v1(tag, amount=amount)
-    print(medias[0])
-    mtemp = json.dumps(medias[0].__dict__, default=str)
-    print(mtemp)
-    print(medias)
     print("amount"+str(amount)+" timetotal: ", time.time() - start)
-    print(type(medias))
     return medias[0].dict()
 
 @router.get("/list/a1")
