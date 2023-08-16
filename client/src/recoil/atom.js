@@ -36,7 +36,7 @@ const SortState = atom({
 const LastIdState = atom({
   key: 'lastIdState',
   default: '000000000000000000000000',
-  effects_UNSTABLE: [persistAtom],
+  // effects_UNSTABLE: [persistAtom],
 });
 
 const ToastMessage = atom({

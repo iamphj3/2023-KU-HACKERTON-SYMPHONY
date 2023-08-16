@@ -5,7 +5,6 @@ export const client = axios.create({
   headers: {
     'Content-type': 'application/json',
   },
-  withCredentials: true,
 });
 
 // export const instagGetFetcher = (url) => client.get(url).then((res) => res.data);

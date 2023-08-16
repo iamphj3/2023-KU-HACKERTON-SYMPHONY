@@ -22,8 +22,6 @@ export default function HashtagSearch() {
   const [imageUrl, setIimageUrl] = useRecoilState(UploadedImage);
   const [idLoading, setIdloading] = useRecoilState(IdLoadingState);
 
-  console.log(hashtagList, isAdFiltered, periodState, imageUrl);
-
   const navigate = useNavigate();
 
   const handleSearch = async () => {

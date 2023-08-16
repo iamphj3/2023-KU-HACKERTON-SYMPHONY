@@ -1,12 +1,16 @@
 import { styled } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import { IcInstagLogo } from '../../../assets/icons';
+import { HashtagList } from '../../../recoil/atom';
 
 export default function Header() {
   const navigate = useNavigate();
+  const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
 
   const handleLogoClick = () => {
     navigate('/');
+    setHashtagList([]);
   };
 
   return (

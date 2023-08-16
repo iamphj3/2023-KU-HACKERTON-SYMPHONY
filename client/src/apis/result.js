@@ -15,12 +15,15 @@ export const getTotalPostNum = async (tag_id) => {
 export const getSearchResult = async ({ tagId, lastId }) => {
   try {
     console.log('해시태그 조회 API 로딩중');
-    console.log(tagId, lastId);
-
     const data = await client.get(`/hashtag/?tag_id=${tagId}&lastId=${lastId}`);
     console.log(data);
-    console.log(data.data.data);
-    return data.data.data;
+
+    if (data.status === 204) {
+      return null;
+    }
+    if (data.status === 200) {
+      return data.data.data;
+    }
   } catch (err) {
     console.error(err);
     throw err;
