@@ -17,6 +17,7 @@ from AI.imageRetrieval import model_predict
 from models.instagrapi_exceptions import handle_exception
 import concurrent.futures
 import asyncio
+from pydantic import BaseModel
 db = get_db()
 
 router = APIRouter(
@@ -72,46 +73,52 @@ def get_hastag_medias(tag: str, amount:int):
         
     return new_data
 
+class Hashtag(BaseModel):
+    period : int
+    isAds: bool
+    hashtags : List[str]
+    image_url: Optional[str] = None
+
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def post_hashtags(period:int, isAds:bool, hashtags : List[str] = Query(None), image_url: Optional[str] = None):
+async def post_hashtags(hastag : Hashtag):
     start = time.time()
     current_date = datetime.today()
 
     #top 기록 
-    for tag in hashtags:
+    for tag in hastag.hashtags:
         await db["top"].insert_one({"tag" :tag, "date": current_date})
 
     ##tag_id 저장
     #join한 적 있으면 tagsId에서 삭제
-    tag_obj = await find_tag_id(hashtags)
+    tag_obj = await find_tag_id(hastag.hashtags)
     if tag_obj is not None: # tag_obj 삭제
         await db["tagsId"].find_one_and_delete({"_id" : ObjectId(tag_obj.get("_id"))})
     
-    hashtags.sort()
-    if image_url is not None:
-        result = await db["tagsId"].insert_one({"tags":hashtags, 
+    hastag.hashtags.sort()
+    if hastag.image_url is not None:
+        result = await db["tagsId"].insert_one({"tags": hastag.hashtags, 
                                     "isLast":False, "isLike":False, "isComment":False, "isImage":True}) 
     else: 
-        result = await db["tagsId"].insert_one({"tags":hashtags, 
+        result = await db["tagsId"].insert_one({"tags": hastag.hashtags, 
                                     "isLast":False, "isLike":False, "isComment":False, "isImage":False}) 
     tag_id = str(result.inserted_id)
 
     #검색
     fix_amount = 80
-    amount = (int)(fix_amount/len(hashtags))
+    amount = (int)(fix_amount/len(hastag.hashtags))
     print(amount)
     collection_names = await db.list_collection_names()
     
     results = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        for tag in hashtags:
+        for tag in hastag.hashtags:
             if not(tag in collection_names): # 중복 확인
                 future = executor.submit(get_hastag_medias, tag, amount)
                 results.append(future)
 
 
-    for tag, future in zip(hashtags, results):
+    for tag, future in zip(hastag.hashtags, results):
         if future.done():
             result = future.result()
             if len(result)!=0:
@@ -119,32 +126,32 @@ async def post_hashtags(period:int, isAds:bool, hashtags : List[str] = Query(Non
 
 
     #조인 테이블 생성
-    await tags_union(tag_id, hashtags)
+    await tags_union(tag_id, hastag.hashtags)
 
     
-    if(isAds): #광고제거
+    if(hastag.isAds): #광고제거
         await db[tag_id].delete_many({"isAds": True})
-    if(period>0): #기간필터
+    if(hastag.period>0): #기간필터
         current_date = datetime.now()
-        days_ago = current_date - timedelta(days=period)
+        days_ago = current_date - timedelta(days=hastag.period)
         print(days_ago)
         await db[tag_id].delete_many({"date": {
             "$lte": days_ago
         }})
     
     #AI 모델 
-    if image_url is not None :
+    if hastag.image_url is not None :
         cursor = db[tag_id].find()
         docs = await cursor.to_list(length=None)
         img_docs = list()
         for doc in docs:
             if doc["image_url"] is not None:
                 img_docs.append({"id":str(doc["_id"]), "image_url":doc["image_url"]})
-        sort_images = model_predict(image_url, img_docs)
+        sort_images = model_predict(hastag.image_url, img_docs)
         for idx, sort in enumerate(sort_images):
             await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
     
-    print("amount"+str(len(hashtags))+" timetotal: ", time.time() - start)
+    print("amount"+str(len(hastag.hashtags))+" timetotal: ", time.time() - start)
     return {"status": 201, "message": "검색 종료"}
 
 
