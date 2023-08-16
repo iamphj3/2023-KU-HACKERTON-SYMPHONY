@@ -9,6 +9,7 @@ import {
   IsAdsState,
   UploadedImage,
   IdLoadingState,
+  ToastMessage,
 } from '../../recoil/atom';
 import { postSearch, getHashtagId } from '../../apis/search';
 
@@ -21,11 +22,21 @@ export default function HashtagSearch() {
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setIimageUrl] = useRecoilState(UploadedImage);
   const [idLoading, setIdloading] = useRecoilState(IdLoadingState);
+  const [toastMessage, setToastMessage] = useRecoilState(ToastMessage);
 
   const navigate = useNavigate();
 
   const handleSearch = async () => {
     try {
+      if (hashtagList.length === 0) {
+        setToastMessage('해시태그를 먼저 추가해주세요.');
+        return;
+      }
+      if (hashtagList.length > 5) {
+        setToastMessage('해시태그는 5개까지만 입력할 수 있습니다.');
+        return;
+      }
+
       setIdloading(true);
       const status = await postSearch(periodState, isAdFiltered, hashtagList, imageUrl);
       const searchDataId = await getHashtagId(hashtagList);
@@ -40,6 +51,10 @@ export default function HashtagSearch() {
 
   const handleKeUp = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
+      if (hashtagList.length > 4) {
+        setToastMessage('해시태그는 5개까지만 입력할 수 있습니다.');
+        return;
+      }
       if (hashtagInput.trim() !== '') {
         setHashtagList((prevList) => [...prevList, hashtagInput]);
         setHashtagInput('');
