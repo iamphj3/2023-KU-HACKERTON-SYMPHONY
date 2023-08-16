@@ -1,6 +1,5 @@
 from os import environ
 import time, json, sys, os
-from .url_convert import url_to_base64
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from dotenv import load_dotenv
 from instagrapi import Client
