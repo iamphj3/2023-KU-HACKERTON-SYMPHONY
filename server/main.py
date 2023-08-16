@@ -10,14 +10,14 @@ app = FastAPI()
 #app.include_router(test.router)
 app.include_router(hashtag.router)
 
-#CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,  
-    allow_methods=["*"],  
-    allow_headers=["*"],  
-)
+# #CORS
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,  
+#     allow_methods=["*"],  
+#     allow_headers=["*"],  
+# )
 
 print("hello")
 
