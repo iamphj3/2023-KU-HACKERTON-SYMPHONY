@@ -1,15 +1,11 @@
-import { ThemeProvider } from 'styled-components';
-import Router from '../Router';
-import GlobalStyle from './styles/GlobalStyle';
-import theme from './styles/theme';
-
+import reactLogo from './assets/react.svg'
+import { useState } from 'react'
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <Router />
-    </ThemeProvider>
-  );
+    <>
+      
+    </>
+  )
 }
 
-export default App;
+export default App
