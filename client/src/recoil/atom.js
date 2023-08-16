@@ -27,4 +27,10 @@ const IsAdsState = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export { UploadedImage, HashtagList, PeriodState, IsAdsState };
+const SortState = atom({
+  key: 'sortState',
+  default: '최신순',
+  effects_UNSTABLE: [persistAtom],
+});
+
+export { UploadedImage, HashtagList, PeriodState, IsAdsState, SortState };

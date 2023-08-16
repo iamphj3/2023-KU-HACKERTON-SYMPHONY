@@ -31,11 +31,11 @@ export const getSearchResult = async ({ tagId, lastId, period, isAds, image_url 
 export const getSortedResult = async (tagId, isLast, isLike, isComment) => {
   try {
     console.log(tagId, isLast, isLike, isComment);
-    const data = await client.get(
+    const { data } = await client.post(
       `/hashtag/sort?tag_id=${tagId}&isLast=${isLast}&isLike=${isLike}&isComment=${isComment}`,
     );
-    console.log(data);
-    return data;
+    console.log(data.status);
+    return data.status;
   } catch (err) {
     console.error(err);
     throw err;

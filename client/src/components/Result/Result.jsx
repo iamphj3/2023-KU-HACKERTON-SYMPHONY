@@ -1,9 +1,11 @@
 import { styled } from 'styled-components';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import PostResult from './PostResult';
-import { getSortedResult } from '../../apis/result';
+import { getSearchResult, getSortedResult } from '../../apis/result';
+import { SortState } from '../../recoil/atom';
 
 const RESULT_TABS = {
   tabList: ['최신순', '좋아요 순', '댓글 많은 순'],
@@ -21,29 +23,30 @@ export default function Result() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const searchDataId = params.get('tagid');
-  console.log(searchDataId);
 
   const { tabList, selectedStyle, noSelectedStyle } = RESULT_TABS;
-  const [selectedTab, setSeletedTab] = useState('최신순');
+  const [selectedTab, setSeletedTab] = useRecoilState(SortState);
 
   const handleTabChange = async (tab) => {
     setSeletedTab(tab);
+
     const queryParams = RESULT_TABS.queryParameters[tab];
     const { isLast, isLike, isComment } = queryParams;
+    const resStatus = await getSortedResult(searchDataId, isLast, isLike, isComment);
 
-    const res = await getSortedResult(searchDataId, isLast, isLike, isComment);
-    // console.log(res);
+    if (resStatus === 200) {
+      window.location.reload();
+    }
   };
 
-  // useEffect(() => {
-  //   window.location.reload();
-  // }, []);
+  const selectedTabIndex = tabList.indexOf(selectedTab);
 
   return (
     <StResult>
       <div>
         <h2>검색 결과</h2>
         <TabSwitcher
+          selectedtab={selectedTabIndex}
           tabList={tabList}
           selectedStyle={selectedStyle}
           noSelectedStyle={noSelectedStyle}

@@ -2,7 +2,7 @@ import { styled } from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect, useCallback } from 'react';
 import { useRecoilState } from 'recoil';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PostCard from './PostCard';
 import { HashtagList, IsAdsState, PeriodState, UploadedImage } from '../../recoil/atom';
 import { getSearchResult, getTotalPostNum } from '../../apis/result';
@@ -16,7 +16,7 @@ export default function PostResult({ searchDataId }) {
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setImageUrl] = useRecoilState(UploadedImage);
 
-  const location = useLocation();
+  const navigate = useNavigate();
 
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -54,7 +54,6 @@ export default function PostResult({ searchDataId }) {
       setLastId('000000000000000000000000');
       getTotalPost();
       getPost();
-      // window.location.reload();
     }
   }, [searchId]);
 

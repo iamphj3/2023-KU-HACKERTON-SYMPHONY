@@ -15,10 +15,8 @@ export const postSearch = async (hashtags) => {
 // 해시태그 id API
 export const getHashtagId = async (hashtags) => {
   try {
-    console.log(hashtags);
     const hashtagsQueryParam = hashtags.map((tag) => `hashtags=${tag}`).join('&');
     const { data } = await client.get(`/hashtag/id?${hashtagsQueryParam}`);
-    console.log(data.data.tag_id);
     return data.data.tag_id;
   } catch (err) {
     console.error(err);
