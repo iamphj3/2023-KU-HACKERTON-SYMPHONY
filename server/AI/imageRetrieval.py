@@ -7,12 +7,14 @@ from skimage.transform import resize
 from PIL import Image
 import base64
 import io
+from multiprocessing import Pool
 #import skimage.io
 
 from keras.utils import img_to_array
 from keras.applications.vgg16 import preprocess_input
 
 from .function.cos_sim import cos_sim
+from .function.open_image import open_image
 
 #메인 모델
 def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_url":"http"}]
@@ -29,14 +31,19 @@ def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_u
     img_set=[]
     
     #이미지셋 전처리
-    for data in img_url_list:
-        img=urlopen(data["image_url"])
-        image = np.asarray(bytearray(img.read()), dtype="uint8")
-        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-        img_set.append(image)
-        
+    pool=Pool(processes=3)
+    img_set =pool.map(open_image,[data for data in img_url_list])
+    #img_set.append(pre_image)
+    pool.close()
+    pool.join()
     imgs_train = img_set
-    
+
+    #for data in img_url_list:
+    #    img=urlopen(data["image_url"])
+    #    l_image = np.asarray(bytearray(img.read()), dtype="uint8")
+    #    l_image = cv2.imdecode(l_image, cv2.IMREAD_COLOR)
+    #    img_set.append(l_image)
+
     #feature 저장할 리스트
     feature_map=[]
     for img in imgs_train:
