@@ -26,21 +26,23 @@ export default function ImageSearch() {
     handleFileBtnClick(e);
   };
 
-  const createImageURL = (file) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      resolve(event.target?.result);
-    };
-    reader.onerror = (event) => {
-      reject(event.target?.error);
-    };
-    reader.readAsDataURL(file);
-  });
+  const createImageURL = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        resolve(event.target?.result);
+      };
+      reader.onerror = (event) => {
+        reject(event.target?.error);
+      };
+      reader.readAsDataURL(file);
+    });
 
   useEffect(() => {
     if (selectedImage) {
       const fetchImageURL = async () => {
         const url = await createImageURL(selectedImage);
+        console.log(url);
         setURLThumbnail(url);
       };
       fetchImageURL();

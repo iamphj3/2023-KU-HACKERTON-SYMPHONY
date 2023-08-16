@@ -17,6 +17,7 @@ export default function HashtagSearch() {
     try {
       const status = await postSearch(hashtagList);
       const searchDataId = await getHashtagId(hashtagList);
+
       navigate(`/result?tagid=${searchDataId}`);
     } catch (error) {
       console.error('Error searching hashtags:', error);

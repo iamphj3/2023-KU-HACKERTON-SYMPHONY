@@ -4,14 +4,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PostCard from './PostCard';
-import { HashtagList, IsAdsState, PeriodState, UploadedImage } from '../../recoil/atom';
+import {
+  HashtagList,
+  IsAdsState,
+  PeriodState,
+  UploadedImage,
+  LastIdState,
+} from '../../recoil/atom';
 import { getSearchResult, getTotalPostNum } from '../../apis/result';
 
 export default function PostResult({ searchDataId }) {
   const [searchId, setSearchId] = useState(searchDataId);
   const [postList, setPostList] = useState([]);
   const [totalPost, setTotalPost] = useState();
-  const [lastId, setLastId] = useState('000000000000000000000000');
+  const [lastId, setLastId] = useRecoilState(LastIdState);
   const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setImageUrl] = useRecoilState(UploadedImage);
@@ -44,6 +50,9 @@ export default function PostResult({ searchDataId }) {
       const postnum = posts.results.length - 1;
       setLastId(posts.results[postnum].id);
       setPostList((prevList) => [...prevList, ...posts.results]);
+      console.log('posts', posts);
+      console.log('postList', postList);
+      console.log('lastId', lastId);
     } catch (error) {
       console.error(error);
     }

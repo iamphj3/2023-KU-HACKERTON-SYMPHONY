@@ -33,4 +33,10 @@ const SortState = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export { UploadedImage, HashtagList, PeriodState, IsAdsState, SortState };
+const LastIdState = atom({
+  key: 'lastIdState',
+  default: '000000000000000000000000',
+  effects_UNSTABLE: [persistAtom],
+});
+
+export { UploadedImage, HashtagList, PeriodState, IsAdsState, SortState, LastIdState };

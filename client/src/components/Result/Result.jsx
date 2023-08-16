@@ -5,7 +5,7 @@ import { useRecoilState } from 'recoil';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import PostResult from './PostResult';
 import { getSearchResult, getSortedResult } from '../../apis/result';
-import { SortState } from '../../recoil/atom';
+import { SortState, LastIdState } from '../../recoil/atom';
 
 const RESULT_TABS = {
   tabList: ['최신순', '좋아요 순', '댓글 많은 순'],
@@ -26,6 +26,7 @@ export default function Result() {
 
   const { tabList, selectedStyle, noSelectedStyle } = RESULT_TABS;
   const [selectedTab, setSeletedTab] = useRecoilState(SortState);
+  const [lastId, setLastId] = useRecoilState(LastIdState);
 
   const handleTabChange = async (tab) => {
     setSeletedTab(tab);
@@ -35,9 +36,12 @@ export default function Result() {
     const resStatus = await getSortedResult(searchDataId, isLast, isLike, isComment);
 
     if (resStatus === 200) {
+      setLastId('000000000000000000000000');
       window.location.reload();
     }
   };
+
+  console.log(lastId);
 
   const selectedTabIndex = tabList.indexOf(selectedTab);
 
