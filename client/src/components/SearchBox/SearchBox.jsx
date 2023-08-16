@@ -19,7 +19,12 @@ export default function SearchBox() {
     <StSearchBox>
       <StTabBar>
         {SEARCH_TABS.map((tab) => (
-          <StTabBtn type="button" key={tab} isActive={activeTab === tab} onClick={() => handleTabClick(tab)}>
+          <StTabBtn
+            type="button"
+            key={tab}
+            className={activeTab === tab ? 'active' : ''}
+            onClick={() => handleTabClick(tab)}
+          >
             {tab}
           </StTabBtn>
         ))}
@@ -52,14 +57,19 @@ const StTabBtn = styled.button`
   padding: 1.4rem 0 0.9rem 0;
 
   ${({ theme }) => theme.fonts.Title2};
-  color: ${({ isActive, theme }) => (isActive ? theme.colors.main : theme.colors.Gray5)};
-  background-color: ${({ isActive, theme }) => (isActive ? theme.colors.White : theme.colors.Gray2)};
+  color: ${({ theme }) => theme.colors.Gray5};
+  background-color: ${({ theme }) => theme.colors.Gray2};
 
   &:first-child {
     border-radius: 1.2rem 0rem 0rem 0rem;
   }
   &:nth-child(2) {
     border-radius: 0rem 1.2rem 0rem 0rem;
+  }
+
+  &.active {
+    color: ${({ theme }) => theme.colors.main};
+    background-color: ${({ theme }) => theme.colors.White};
   }
 `;
 

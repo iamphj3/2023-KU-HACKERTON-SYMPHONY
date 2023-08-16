@@ -6,57 +6,20 @@ import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import PostResult from './PostResult';
 import { getSearchResult, getSortedResult } from '../../apis/result';
 import { SortState, LastIdState } from '../../recoil/atom';
-
-const RESULT_TABS = {
-  tabList: ['최신순', '좋아요 순', '댓글 많은 순'],
-  selectedStyle: { color: '#597CFF' },
-  noSelectedStyle: { color: '#626273' },
-  contents: [],
-  queryParameters: {
-    최신순: { isLast: true, isLike: false, isComment: false },
-    '좋아요 순': { isLast: false, isLike: true, isComment: false },
-    '댓글 많은 순': { isLast: false, isLike: false, isComment: true },
-  },
-};
+import ResultTab from './ResultTab';
 
 export default function Result() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const searchDataId = params.get('tagid');
 
-  const { tabList, selectedStyle, noSelectedStyle } = RESULT_TABS;
-  const [selectedTab, setSeletedTab] = useRecoilState(SortState);
-  const [lastId, setLastId] = useRecoilState(LastIdState);
-
-  const handleTabChange = async (tab) => {
-    setSeletedTab(tab);
-
-    const queryParams = RESULT_TABS.queryParameters[tab];
-    const { isLast, isLike, isComment } = queryParams;
-    const resStatus = await getSortedResult(searchDataId, isLast, isLike, isComment);
-
-    if (resStatus === 200) {
-      setLastId('000000000000000000000000');
-      window.location.reload();
-    }
-  };
-
-  console.log(lastId);
-
-  const selectedTabIndex = tabList.indexOf(selectedTab);
+  // useEffect(() => {
+  //   window.location.reload();
+  // }, []);
 
   return (
     <StResult>
-      <div>
-        <h2>검색 결과</h2>
-        <TabSwitcher
-          selectedtab={selectedTabIndex}
-          tabList={tabList}
-          selectedStyle={selectedStyle}
-          noSelectedStyle={noSelectedStyle}
-          onTabChange={handleTabChange}
-        />
-      </div>
+      <ResultTab searchDataId={searchDataId} />
       <PostResult searchDataId={searchDataId} />
     </StResult>
   );
