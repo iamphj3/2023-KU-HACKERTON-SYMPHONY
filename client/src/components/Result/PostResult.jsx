@@ -85,7 +85,7 @@ export default function PostResult({ searchDataId }) {
           <>
             {/* <p>{`총 ${totalPost}개의 게시물`}</p> */}
             <StPostList>
-              {postList.slice(10).map((data) => (
+              {postList.map((data) => (
                 <div key={data.id} ref={ref}>
                   <PostCard postData={data} />
                 </div>
