@@ -30,7 +30,7 @@ cl.handle_exception = handle_exception
 
 username = environ["PROXY_USER_NAME"]
 pw = environ["PROXY_PASSWORD"]
-proxy = f"https://{username}:{pw}@gate.smartproxy.com:10013"
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:7000"
 cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
@@ -75,6 +75,7 @@ def get_hastag_medias(tag: str, amount:int):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_hashtags(period:int, isAds:bool, hashtags : List[str] = Query(None), image_url: Optional[str] = None):
+    start = time.time()
     current_date = datetime.today()
 
     #top 기록 
@@ -97,15 +98,16 @@ async def post_hashtags(period:int, isAds:bool, hashtags : List[str] = Query(Non
     tag_id = str(result.inserted_id)
 
     #검색
-    amount = 100
+    fix_amount = 80
+    amount = (int)(fix_amount/len(hashtags))
+    print(amount)
     collection_names = await db.list_collection_names()
-
     
     results = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for tag in hashtags:
             if not(tag in collection_names): # 중복 확인
-                future = executor.submit(get_hastag_medias, tag, 20)
+                future = executor.submit(get_hastag_medias, tag, amount)
                 results.append(future)
 
 
@@ -142,6 +144,7 @@ async def post_hashtags(period:int, isAds:bool, hashtags : List[str] = Query(Non
         for idx, sort in enumerate(sort_images):
             await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
     
+    print("amount"+str(len(hashtags))+" timetotal: ", time.time() - start)
     return {"status": 201, "message": "검색 종료"}
 
 

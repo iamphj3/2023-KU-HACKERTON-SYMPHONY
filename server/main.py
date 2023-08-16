@@ -5,7 +5,7 @@ from routers import test, hashtag
 from models import mongoDB
 
 app = FastAPI()
-app.include_router(test.router)
+#app.include_router(test.router)
 app.include_router(hashtag.router)
 
 # mongodb = mongoDB()

@@ -8,6 +8,10 @@ from typing import List
 from models import get_db
 from models.instagrapi_exceptions import handle_exception
 
+from PIL import Image
+import requests
+from io import BytesIO
+
 db = get_db()
 
 router = APIRouter(
@@ -21,7 +25,7 @@ cl.handle_exception = handle_exception
 
 username = environ["PROXY_USER_NAME"]
 pw = environ["PROXY_PASSWORD"]
-proxy = f"https://{username}:{pw}@gate.smartproxy.com:10012"
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:10015"
 cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
@@ -30,6 +34,12 @@ cl.set_proxy(proxy)
 cl.load_settings('./tmp/dump.json')
 cl.get_timeline_feed()
 
+@router.get("/resize")
+def resize_image(url):
+    response = requests.get(url)
+    img = Image.open(BytesIO(response.content))
+    img = img.resize((500, 500),Image.LANCZOS)
+    return img
 
 @router.get("/list/v1")
 def hashtag_list_v1(tag: str, amount: int):
