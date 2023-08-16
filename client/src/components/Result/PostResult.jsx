@@ -48,14 +48,12 @@ export default function PostResult({ searchDataId }) {
         isAds: isAdFiltered,
         image_url: imageUrl,
       });
-
-      const postnum = posts.results.length - 1;
-      setLastId(posts.results[postnum].id);
-      setPostList((prevList) => [...prevList, ...posts.results]);
-      console.log('posts', posts);
-      console.log('postList', postList);
-      console.log('lastId', lastId);
-      setLoading(false);
+      if (posts) {
+        const postnum = posts.results.length - 1;
+        setLastId(posts.results[postnum].id);
+        setPostList((prevList) => [...prevList, ...posts.results]);
+        setLoading(false);
+      }
     } catch (error) {
       console.error(error);
       setLoading(false);

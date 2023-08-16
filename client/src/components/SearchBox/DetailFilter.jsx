@@ -8,10 +8,12 @@ const PERIODS = ['전체', '1주', '1개월', '3개월', '6개월', '1년'];
 const PERIOD_VALUES = [0, 7, 30, 90, 180, 365];
 
 export default function DetailFilter() {
-  const [selectedPeriod, setSelectedPeriod] = useState(PERIODS[0]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
+
+  const curperiodIndex = PERIOD_VALUES.indexOf(periodState);
+  const [selectedPeriod, setSelectedPeriod] = useState(PERIODS[curperiodIndex]);
 
   const handleFilter = () => {
     setIsExpanded((prev) => !prev);
@@ -33,7 +35,7 @@ export default function DetailFilter() {
     <StDetailFilterWrapper>
       <StInfo>
         <p>* 여러개 입력 시 스페이스 혹은 엔터로 구분</p>
-        <StFilterBtn type="button" onClick={handleFilter} className={isExpanded ? 'expanded' : ''} isExpanded={isExpanded}>
+        <StFilterBtn type="button" onClick={handleFilter} className={isExpanded ? 'expanded' : ''}>
           상세 필터
           <IcArrowDown />
         </StFilterBtn>

@@ -9,8 +9,6 @@ export default function PostCard({ postData }) {
   const slicedText = text.length > 31 ? `${text.substring(0, 31)}...` : text;
   const [encodedUrl, setEncodedUrl] = useState();
 
-  console.log('image_url', image_url);
-
   const handlePostCardClick = () => {
     if (postData.instagram_url) {
       window.open(postData.instagram_url, '_blank');
@@ -19,7 +17,7 @@ export default function PostCard({ postData }) {
 
   useEffect(() => {
     const encodeAndSetImage = async (imageUrl) => {
-      const response = await fetch(imageUrl, { method: 'GET', mode: 'no-cors' });
+      const response = await fetch(imageUrl);
       const blob = await response.blob();
 
       const reader = new FileReader();
@@ -32,11 +30,10 @@ export default function PostCard({ postData }) {
     encodeAndSetImage(image_url);
   }, []);
 
-  console.log('encodedUrl', encodedUrl);
-
   return (
     <StPostCard onClick={handlePostCardClick}>
       {encodedUrl && <img alt="post-thumbnail" src={encodedUrl} />}
+      {/* <img alt="post-thumbnail" src={image_url} /> */}
       <StInteractions>
         <div>
           <IcHeart />
