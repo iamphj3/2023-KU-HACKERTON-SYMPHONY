@@ -30,7 +30,7 @@ cl.handle_exception = handle_exception
 
 username = environ["PROXY_USER_NAME"]
 pw = environ["PROXY_PASSWORD"]
-proxy = f"https://{username}:{pw}@gate.smartproxy.com:10011"
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:10013"
 cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
@@ -41,7 +41,6 @@ cl.get_timeline_feed()
 
 def get_hastag_medias(tag: str, amount:int):
     print(tag)
-    #medias = cl.hashtag_medias_top_v1(tag, amount=amount)
     medias = cl.hashtag_medias_recent_v1(tag, amount=amount)
     new_data = []
     for media in medias:
@@ -328,7 +327,6 @@ async def get_top(period : int):
 
     cursor = db["top"].aggregate(pipeline)
     docs = await cursor.to_list(length=10)
-    print(docs)
     result = list()
     for doc in docs:
         result.append(doc.get('_id'))

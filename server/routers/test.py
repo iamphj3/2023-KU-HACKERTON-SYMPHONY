@@ -21,7 +21,7 @@ cl.handle_exception = handle_exception
 
 username = environ["PROXY_USER_NAME"]
 pw = environ["PROXY_PASSWORD"]
-proxy = f"https://{username}:{pw}@gate.smartproxy.com:10011"
+proxy = f"https://{username}:{pw}@gate.smartproxy.com:10012"
 cl.set_proxy(proxy)
 
 #cl.login(environ["ACCOUNT_USERNAME"], environ["ACCOUNT_PASSWORD"])
@@ -43,6 +43,8 @@ def hashtag_list_v1(tag: str, amount: int):
     start = time.time()
     medias = cl.hashtag_medias_recent_v1(tag, amount=amount)
     print("amount"+str(amount)+" timetotal: ", time.time() - start)
+    for i in range(amount):
+        print(medias[i].dict()["taken_at"])
     return medias[0].dict()
 
 @router.get("/recent")
