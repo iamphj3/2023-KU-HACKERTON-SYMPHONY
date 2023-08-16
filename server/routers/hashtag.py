@@ -164,14 +164,15 @@ async def post_hashtags(hastag : Hashtag):
     #AI 모델 
     if hastag.image_url is not None :
         cursor = db[tag_id].find()
-        docs = await cursor.to_list(length=None)
+        docs = await cursor.to_list(length=50)
         img_docs = list()
         for doc in docs:
             if doc["image_url"] is not None:
                 img_docs.append({"id":str(doc["_id"]), "image_url":doc["image_url"]})
         sort_images = model_predict(hastag.image_url, img_docs)
         for idx, sort in enumerate(sort_images):
-            await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
+            await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx+1}})
+        await db[tag_id].delete_many({"image_rank":0})
     
     print("total time// amount:"+str(amount)+" timetotal:", time.time() - start)
     return {"status": 201, "message": "검색 종료"}
