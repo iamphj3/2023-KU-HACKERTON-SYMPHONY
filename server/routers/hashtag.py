@@ -182,9 +182,10 @@ async def post_hashtags(hastag : Hashtag):
 ##
 @router.get("/fetch")
 async def fetch_data(image_url):
-    req = Request(image_url, headers={'User-Agent':'Mozilla/5.0'})
+    #req = Request(image_url, headers={'User-Agent':'Mozilla/5.0'})
     try: 
-        with urlopen(req) as response:
+        #with urlopen(req) as response:
+        with urlopen(image_url) as response:
             blob = response.read()
             encoded_data = base64.b64encode(blob).decode('utf-8')
             return {"status": 200, "data" : encoded_data}
