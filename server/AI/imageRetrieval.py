@@ -9,7 +9,7 @@ import base64
 import io
 #import skimage.io
 
-import keras.utils as image
+from keras.utils import img_to_array
 from keras.applications.vgg16 import preprocess_input
 
 from .function.cos_sim import cos_sim
@@ -18,11 +18,11 @@ from .function.cos_sim import cos_sim
 def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_url":"http"}]
     
     #메인 모델
-    base_model = tf.keras.applications.VGG16(weights='imagenet')
+    #base_model = tf.keras.applications.VGG16(weights='imagenet')
     #base_model.summary()
-    
+    model=tf.keras.applications.VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
     # Feature Map 추출 모델 생성
-    model = tf.keras.models.Model(inputs = base_model.input,outputs = base_model.get_layer('block5_conv3').output)
+    #model = tf.keras.models.Model(inputs = base_model.input,outputs = base_model.get_layer('block5_conv3').output)
     #model.summary()
 
 
@@ -41,7 +41,7 @@ def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_u
     feature_map=[]
     for img in imgs_train:
         img = cv2.resize(img,dsize=(224,224))
-        img = image.img_to_array(img)
+        img = img_to_array(img)
         img = img.reshape((1, img.shape[0],img.shape[1],img.shape[2]))
         img = preprocess_input(img)
         # Feature Map 추출
@@ -63,7 +63,7 @@ def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_u
     q_feature=[]
     
     q_img = cv2.resize(test_image,dsize=(224,224))
-    q_img = image.img_to_array(q_img)
+    q_img = img_to_array(q_img)
     q_img = q_img.reshape((1, q_img.shape[0],q_img.shape[1],q_img.shape[2]))
     q_img = preprocess_input(q_img)
     # Feature Map 추출
