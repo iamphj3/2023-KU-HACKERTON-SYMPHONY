@@ -21,6 +21,8 @@ export default function ImageSearch() {
     }
   };
 
+  console.log(uploadedImage);
+
   const handleFileBtnClick = () => {
     if (hashtagList.length === 0) {
       setToastMessage('해시태그를 먼저 추가해주세요.');
@@ -52,7 +54,9 @@ export default function ImageSearch() {
       const fetchImageURL = async () => {
         const url = await createImageURL(selectedImage);
         setURLThumbnail(url);
-        setUploadedImage(url);
+
+        const imageData = url.replace(/^data:image\/(.*?);base64,/, '');
+        setUploadedImage(imageData);
       };
       fetchImageURL();
     }
