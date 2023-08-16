@@ -3,27 +3,27 @@ import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IcSearch } from '../../assets/icons';
-import { HashtagList } from '../../recoil/atom';
+import { HashtagList, PeriodState, IsAdsState, UploadedImage } from '../../recoil/atom';
 import { postSearch, getHashtagId } from '../../apis/search';
 
 export default function HashtagSearch() {
   const [hashtagInput, setHashtagInput] = useState('');
-  const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
   const [postList, setPostList] = useState([]);
+
+  const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
+  const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
+  const [periodState, setPeriodState] = useRecoilState(PeriodState);
+  const [imageUrl, setIimageUrl] = useRecoilState(UploadedImage);
+  console.log(hashtagList, isAdFiltered, periodState, imageUrl);
 
   const navigate = useNavigate();
 
   const handleSearch = async () => {
     try {
-      const status = await postSearch(hashtagList);
-      let searchDataId;
-      if (status === 201) {
-        searchDataId = await getHashtagId(hashtagList);
-        navigate('/result', { state: { searchDataId } });
-      } else {
-        navigate('/result');
-      }
-      console.log(searchDataId);
+      const status = await postSearch(periodState, isAdFiltered, hashtagList, imageUrl);
+      const searchDataId = await getHashtagId(hashtagList);
+
+      navigate(`/result?tagid=${searchDataId}`);
     } catch (error) {
       console.error('Error searching hashtags:', error);
     }
