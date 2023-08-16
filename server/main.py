@@ -11,12 +11,12 @@ app = FastAPI()
 app.include_router(hashtag.router)
 
 #CORS
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],  
-#     allow_methods=["*"],  
-#     allow_headers=["*"],  
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
 
 @app.get("/")
 def root():
