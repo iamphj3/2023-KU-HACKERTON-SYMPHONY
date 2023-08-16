@@ -57,14 +57,13 @@ def get_hastag_medias(tag: str, amount:int):
         new_doc["text"] = doc["caption_text"]
         new_doc["like_count"] = doc["like_count"]
         new_doc["comment_count"] = doc["comment_count"]
-            
-        #초기화 
+        new_doc["instagram_url"] = "https://www.instagram.com/p/"+doc["code"]
         new_doc["isAds"] = False
         new_doc["image_rank"] = 0
         new_doc["sort_rank"] = 0
 
         #광고 여부 
-        check_ads = ['광고', '협찬', '공구']
+        check_ads = ['광고', '협찬', '공구', '리그램']
         for ads in check_ads:
             if ads in doc["caption_text"]:
                 new_doc["isAds"] = True
@@ -107,41 +106,50 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
 
     #조인 테이블 생성
     await tags_union(tag_id, hashtags)
+    return {"status": 200, "message": "검색 종료"}
 
 #합집합 
 async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
+
     #collection 합치기
     pipeline = []
-    for idx, tag in enumerate(hashtags):
-        if(idx!=0):
-            pipeline.append({
-                "$unionWith":{
-                    "coll": tag
-                }
-            })
+    stand_tag = None
+    collection_names = await db.list_collection_names()
+    for tag in hashtags:
+        if tag in collection_names :
+            if stand_tag is None : 
+                stand_tag = tag
+            else :
+                pipeline.append({
+                    "$unionWith":{
+                        "coll": tag
+                    }
+                })
+
     pipeline.append({"$out":tag_id})
-    cursor = db[hashtags[0]].aggregate(pipeline)
-    await cursor.to_list(length=None)
+    if stand_tag is not None:
+        cursor = db[stand_tag].aggregate(pipeline)
+        await cursor.to_list(length=None)
 
-    #중복 찾기
-    pipeline = [
-        {
-            "$group": {
-                "_id": "$pk",  # 중복을 확인하려는 필드로 수정
-                "count": {"$sum": 1},
-                "duplicates": {"$addToSet": "$_id"}
-            }
-        },
-        {"$match": {"count": {"$gt": 1}}}
-    ]
-    cursor = db[tag_id].aggregate(pipeline)
-    duplicates = await cursor.to_list(length=None)
+        #중복 찾기
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$pk",  # 중복을 확인하려는 필드로 수정
+                    "count": {"$sum": 1},
+                    "duplicates": {"$addToSet": "$_id"}
+                }
+            },
+            {"$match": {"count": {"$gt": 1}}}
+        ]
+        cursor = db[tag_id].aggregate(pipeline)
+        duplicates = await cursor.to_list(length=None)
 
-    #중복 제거
-    for doc in duplicates:
-        duplicate_ids = doc["duplicates"]
-        del duplicate_ids[0]
-        db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
+        #중복 제거
+        for doc in duplicates:
+            duplicate_ids = doc["duplicates"]
+            del duplicate_ids[0]
+            db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
  
 @router.get("/")
 async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url: Optional[str] = None):
@@ -201,10 +209,8 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
 
     # 마지막 요청인지 
     if(len(docs)==0): 
-        res["isFinal"] = True
-        return {"data" : res} # 결과 X
+        raise HTTPException(status_code=400, detail={"status":400, "message":"해당 조건에 맞는 검색 결과가 없습니다.(마지막 요청입니다.)"})
     
-    res["isFinal"] = False 
 
     query_id = {}
     query_id["_id"] = { "$gt": ObjectId(lastId) }
@@ -215,22 +221,27 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
         doc.pop("_id" ,None)
 
     res["results"] = docs
-    return {"data" : res}
+    return {"message": "조회 성공","data" : res}
 
 @router.get("/id")
-async def get_tag_id(hashtags : List[str] = Query(None)):
+async def get_tag_id(hashtags : List[str] = Query(None)): 
+
     find_tags = list()
     for tag in hashtags:
         find_tags.append(tag)
     find_tags.sort()
 
     tag_obj = await db["tagsId"].find_one({"tags":find_tags})
-    return {"data": {"tag_id" : str(tag_obj.get("_id"))}}
+
+    if tag_obj is None: #검색결과 없음 return 
+        raise HTTPException(status_code=400, detail={"status":400, "message":"검색 결과가 존재하지 않습니다."})
+    
+    return {"status":200, "message": "tag id return 성공", "data": {"tag_id" : str(tag_obj.get("_id"))}}
 
 @router.post("/sort", status_code=status.HTTP_201_CREATED)
 async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
     if (isLast + isLike + isComment) > 1: 
-        raise HTTPException(status_code=400, detail="하나의 값만 true로 설정할 수 있습니다.")
+        raise HTTPException(status_code=400, detail={"status":400, "message":"하나의 값만 true로 설정할 수 있습니다."})
 
     sort_op = []
 
@@ -253,16 +264,22 @@ async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
             await db[tag_id].find_one_and_update({"_id":ObjectId(doc["_id"])},{"$set":{"sort_rank":idx}})
                 
     await db["tagsId"].find_one_and_update({"_id":ObjectId(tag_id)},{"$set":{"isLast":isLast,"isLike":isLike,"isComment":isComment}})
+
+    return {"status":200, "message": "테이블 정렬 완료 : get으로 다시 요청 해주세요"}
      
 @router.get("/total")
 async def get_total(tag_id:str):
     total = await db[tag_id].count_documents({})
-    return {"data" : total}
+    return {"message": "tag_id: "+tag_id + " 게시물 개수 return 성공","data" : total}
 
 
 @router.get("/top")
 async def get_top(period : int):
     query = {}
+    if period != 1 or period !=7 :
+        raise HTTPException(status_code=400, detail={"status":400, "message":"period는 1과 7중에 선택해 전달해주세요."})
+    
+
     #기간 정렬
     current_date = datetime.today()
     days_ago = current_date - timedelta(days=period)
@@ -292,4 +309,4 @@ async def get_top(period : int):
     result = list()
     for doc in docs:
         result.append(doc.get('_id'))
-    return {"data" : result}
+    return {"status":200, "message": "top 10 list return 성공", "data" : result}
