@@ -81,7 +81,12 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
     for tag in hashtags:
         await db["top"].insert_one({"tag" :tag, "date": current_date})
 
-    #tag_id 저장
+    ##tag_id 저장
+    #join한 적 있으면 tagsId에서 삭제
+    tag_obj = await find_tag_id(hashtags)
+    if tag_obj is not None: # tag_obj 삭제
+        await db["tagsId"].find_one_and_delete({"_id" : ObjectId(tag_obj.get("_id"))})
+    
     hashtags.sort()
     result = await db["tagsId"].insert_one({"tags":hashtags, 
                                 "isLast":False, "isLike":False, "isComment":False}) 
@@ -106,18 +111,18 @@ async def post_hashtags(hashtags : List[str] = Query(None)):
 
     #조인 테이블 생성
     await tags_union(tag_id, hashtags)
-    return {"status": 200, "message": "검색 종료"}
+    return {"status": 201, "message": "검색 종료"}
 
-#합집합 
+#
+##collection 합집합 적용 
 async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
 
-    #collection 합치기
     pipeline = []
     stand_tag = None
     collection_names = await db.list_collection_names()
     for tag in hashtags:
-        if tag in collection_names :
-            if stand_tag is None : 
+        if tag in collection_names : # 검색 결과 O
+            if stand_tag is None : # 첫 collection 
                 stand_tag = tag
             else :
                 pipeline.append({
@@ -150,7 +155,11 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
             duplicate_ids = doc["duplicates"]
             del duplicate_ids[0]
             db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
+        
+    await update_sort(tag_id, True, False, False)
  
+ #
+ ##[GET] 해시태그 검색 결과 
 @router.get("/")
 async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url: Optional[str] = None):
     amount = 10
@@ -223,29 +232,36 @@ async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool, image_url
     res["results"] = docs
     return {"message": "조회 성공","data" : res}
 
-@router.get("/id")
-async def get_tag_id(hashtags : List[str] = Query(None)): 
-
+#
+##해시태그 조합 검색
+async def find_tag_id(hashtags : List[str] = Query(None)): #해시태그 조합 검색
     find_tags = list()
     for tag in hashtags:
         find_tags.append(tag)
     find_tags.sort()
 
-    tag_obj = await db["tagsId"].find_one({"tags":find_tags})
+    return await db["tagsId"].find_one({"tags":find_tags})
+
+#
+##[GET] 해시태그 조합 tag_id get
+@router.get("/id")
+async def get_tag_id(hashtags : List[str] = Query(None)): 
+    tag_obj = await find_tag_id(hashtags)
 
     if tag_obj is None: #검색결과 없음 return 
         raise HTTPException(status_code=400, detail={"status":400, "message":"검색 결과가 존재하지 않습니다."})
     
     return {"status":200, "message": "tag id return 성공", "data": {"tag_id" : str(tag_obj.get("_id"))}}
 
+#
+##[POST] tag_id collection sort 
 @router.post("/sort", status_code=status.HTTP_201_CREATED)
 async def update_sort(tag_id:str, isLast:bool, isLike:bool, isComment:bool):
     if (isLast + isLike + isComment) > 1: 
         raise HTTPException(status_code=400, detail={"status":400, "message":"하나의 값만 true로 설정할 수 있습니다."})
 
     sort_op = []
-
-    #인덱스 
+    #정렬
     if(isLike):
         await db[tag_id].create_index([('like_count', -1)])
         sort_op.append(('like_count', -1))
@@ -276,7 +292,7 @@ async def get_total(tag_id:str):
 @router.get("/top")
 async def get_top(period : int):
     query = {}
-    if period != 1 or period !=7 :
+    if period != 1 and period !=7 :
         raise HTTPException(status_code=400, detail={"status":400, "message":"period는 1과 7중에 선택해 전달해주세요."})
     
 
