@@ -188,6 +188,7 @@ async def fetch_data(image_url):
         encoded_data = base64.b64encode(blob).decode('utf-8')
         return {"status": 200, "data" : encoded_data}
     except Exception as e:
+        print("Error:", e)
         raise HTTPException(status_code=400, detail={"status":400, "message":"image url 확인"})    
    
 
