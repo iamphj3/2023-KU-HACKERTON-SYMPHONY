@@ -100,7 +100,7 @@ async def post_hashtags(hastag : Hashtag):
     current_date = datetime.today()
 
     #top 기록 
-    for tag in hastag.hashtags:
+    for tag in hastag.hashtags: 
         await db["top"].insert_one({"tag" :tag, "date": current_date})
 
     ##tag_id 저장
