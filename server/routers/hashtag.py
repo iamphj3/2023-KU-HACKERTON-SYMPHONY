@@ -182,10 +182,13 @@ async def post_hashtags(hastag : Hashtag):
 ##
 @router.get("/fetch")
 async def fetch_data(image_url):
-    with urlopen(image_url) as response:
-        blob = response.read()
-    encoded_data = base64.b64encode(blob).decode('utf-8')
-    return encoded_data  
+    try: 
+        with urlopen(image_url) as response:
+            blob = response.read()
+        encoded_data = base64.b64encode(blob).decode('utf-8')
+        return {"status": 200, "data" : encoded_data}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status":400, "message":"image url 확인"})    
    
 
 #
