@@ -4,13 +4,6 @@ import { client } from './axios';
 export const postSearch = async (period, isAds, hashtags, image_url) => {
   try {
     console.log('해시태그, 이미지 검색 API 로딩중');
-
-    // const hashtagsQueryParam = hashtags.map((tag) => `hashtags=${tag}`).join('&');
-    // let url = `/hashtag/?period=${period}&isAds=${isAds}&${hashtagsQueryParam}`;
-    // if (image_url) {
-    //   url += `&image_url=${image_url}`;
-    // }
-
     const requestPayload = {
       period,
       isAds,
@@ -18,11 +11,13 @@ export const postSearch = async (period, isAds, hashtags, image_url) => {
     };
 
     if (image_url) {
+      console.log(image_url);
       requestPayload.image_url = image_url;
     }
 
+    console.log(requestPayload);
     const data = await client.post('/hashtag/', requestPayload);
-
+    console.log('postSearch', data);
     return data.status;
   } catch (err) {
     console.error(err);

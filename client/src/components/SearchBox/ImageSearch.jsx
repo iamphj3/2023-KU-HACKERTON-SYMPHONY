@@ -6,10 +6,13 @@ import { UploadedImage, HashtagList, ToastMessage } from '../../recoil/atom';
 
 export default function ImageSearch() {
   const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
-  const [selectedImage, setSelectedImage] = useRecoilState(UploadedImage);
-  const imageInputRef = useRef(null);
-  const [URLThumbnail, setURLThumbnail] = useState(null);
+  const [uploadedImage, setUploadedImage] = useRecoilState(UploadedImage);
   const [toastMessage, setToastMessage] = useRecoilState(ToastMessage);
+
+  const [URLThumbnail, setURLThumbnail] = useState(null);
+  const [selectedImage, setSelectedImage] = useState('');
+
+  const imageInputRef = useRef(null);
 
   const handleFileSelect = (e) => {
     const { files } = e.target;
@@ -48,8 +51,9 @@ export default function ImageSearch() {
     if (selectedImage) {
       const fetchImageURL = async () => {
         const url = await createImageURL(selectedImage);
-        console.log(url);
         setURLThumbnail(url);
+        setUploadedImage(url);
+        console.log('uploadedImage', uploadedImage);
       };
       fetchImageURL();
     }

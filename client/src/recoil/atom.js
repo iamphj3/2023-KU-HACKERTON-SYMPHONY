@@ -5,7 +5,7 @@ const { persistAtom } = recoilPersist();
 
 const UploadedImage = atom({
   key: 'uploadedImage',
-  default: null,
+  default: '',
   effects_UNSTABLE: [persistAtom],
 });
 
