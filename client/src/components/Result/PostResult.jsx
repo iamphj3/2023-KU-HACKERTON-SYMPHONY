@@ -83,7 +83,7 @@ export default function PostResult({ searchDataId }) {
           <PostLayout />
         ) : (
           <>
-            <p>{`총 ${totalPost}개의 게시물`}</p>
+            {/* <p>{`총 ${totalPost}개의 게시물`}</p> */}
             <StPostList>
               {postList.slice(10).map((data) => (
                 <div key={data.id} ref={ref}>
