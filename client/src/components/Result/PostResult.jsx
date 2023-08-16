@@ -55,10 +55,10 @@ export default function PostResult({ searchDataId }) {
       console.log('posts', posts);
       console.log('postList', postList);
       console.log('lastId', lastId);
-      setLoading(false);
+      // setLoading(false);
     } catch (error) {
       console.error(error);
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
