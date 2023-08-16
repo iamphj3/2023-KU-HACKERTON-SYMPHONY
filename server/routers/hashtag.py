@@ -41,7 +41,8 @@ cl.get_timeline_feed()
 
 def get_hastag_medias(tag: str, amount:int):
     print(tag)
-    medias = cl.hashtag_medias_top_v1(tag, amount=amount)
+    #medias = cl.hashtag_medias_top_v1(tag, amount=amount)
+    medias = cl.hashtag_medias_recent_v1(tag, amount=amount)
     new_data = []
     for media in medias:
         doc = media.dict()
@@ -74,7 +75,7 @@ def get_hastag_medias(tag: str, amount:int):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def post_hashtags(hashtags : List[str] = Query(None), image_url: Optional[str] = None):
+async def post_hashtags(period:int, isAds:bool, hashtags : List[str] = Query(None), image_url: Optional[str] = None):
     current_date = datetime.today()
 
     #top 기록 
@@ -88,8 +89,12 @@ async def post_hashtags(hashtags : List[str] = Query(None), image_url: Optional[
         await db["tagsId"].find_one_and_delete({"_id" : ObjectId(tag_obj.get("_id"))})
     
     hashtags.sort()
-    result = await db["tagsId"].insert_one({"tags":hashtags, 
-                                "isLast":False, "isLike":False, "isComment":False}) 
+    if image_url is not None:
+        result = await db["tagsId"].insert_one({"tags":hashtags, 
+                                    "isLast":False, "isLike":False, "isComment":False, "isImage":True}) 
+    else: 
+        result = await db["tagsId"].insert_one({"tags":hashtags, 
+                                    "isLast":False, "isLike":False, "isComment":False, "isImage":False}) 
     tag_id = str(result.inserted_id)
 
     #검색
@@ -105,12 +110,27 @@ async def post_hashtags(hashtags : List[str] = Query(None), image_url: Optional[
                 results.append(future)
 
 
-        for tag, future in zip(hashtags, results):
-            if future.done():
-                result = future.result()
-                if len(result)!=0:
-                    await db[tag].insert_many(result)
+    for tag, future in zip(hashtags, results):
+        if future.done():
+            result = future.result()
+            if len(result)!=0:
+                await db[tag].insert_many(result)
 
+
+    #조인 테이블 생성
+    await tags_union(tag_id, hashtags)
+
+    
+    if(isAds): #광고제거
+        await db[tag_id].delete_many({"isAds": True})
+    if(period>0): #기간필터
+        current_date = datetime.now()
+        days_ago = current_date - timedelta(days=period)
+        print(days_ago)
+        await db[tag_id].delete_many({"date": {
+            "$lte": days_ago
+        }})
+    
     #AI 모델 
     if image_url is not None :
         cursor = db[tag_id].find()
@@ -122,10 +142,9 @@ async def post_hashtags(hashtags : List[str] = Query(None), image_url: Optional[
         sort_images = model_predict(image_url, img_docs)
         for idx, sort in enumerate(sort_images):
             await db[tag_id].find_one_and_update({"_id":ObjectId(sort["id"])},{"$set":{"image_rank":idx}})
+    
+    return {"status": 201, "message": "검색 종료"}
 
-    #조인 테이블 생성
-        await tags_union(tag_id, hashtags)
-        return {"status": 201, "message": "검색 종료"}
 
 #
 ##collection 합집합 적용 
@@ -145,6 +164,7 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
                 })
 
     pipeline.append({"$out":tag_id})
+
     if stand_tag is not None:
         cursor = db[stand_tag].aggregate(pipeline)
         await cursor.to_list(length=None)
@@ -168,40 +188,27 @@ async def tags_union(tag_id:str, hashtags : List[str] = Query(None)):
             duplicate_ids = doc["duplicates"]
             del duplicate_ids[0]
             db[tag_id].delete_many({"_id": {"$in": duplicate_ids}})
+    
         
     await update_sort(tag_id, True, False, False)
  
  #
  ##[GET] 해시태그 검색 결과 
 @router.get("/")
-async def get_hashtags(tag_id:str, lastId:str, period:int, isAds:bool):
+async def get_hashtags(tag_id:str, lastId:str):
     amount = 10
     res = {}
     query = {}
-    #query["_id"] = { "$gt": ObjectId(lastId) }
-
-    #기간 필터 
-    current_date = datetime.now()
-    days_ago = current_date - timedelta(days=period)
-    if period !=0:
-        query["date"] = {
-            "$gte": days_ago,
-            "$lte": current_date
-        }   
-
-    #광고 제거 
-    if isAds:
-        query["isAds"] = {"$ne":True}
 
     #정렬
     sort_op = []
-    if image_url is not None:
+    sort_doc = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
+    if sort_doc["isImage"]:
         sort_op.append(('image_rank', 1))
         if(lastId!="000000000000000000000000"):
             last_id = await db[tag_id].find_one({"_id":ObjectId(lastId)})
             query["image_rank"] = { "$gt": last_id["image_rank"] }
     else:
-        sort_doc = await db["tagsId"].find_one({"_id":ObjectId(tag_id)})
         if sort_doc["isLast"]+sort_doc["isLike"]+sort_doc["isComment"] == 1:
             sort_op.append(('sort_rank', 1))
             if(lastId!="000000000000000000000000"):
