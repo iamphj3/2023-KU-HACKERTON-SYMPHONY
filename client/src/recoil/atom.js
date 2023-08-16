@@ -39,4 +39,17 @@ const LastIdState = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export { UploadedImage, HashtagList, PeriodState, IsAdsState, SortState, LastIdState };
+const ToastMessage = atom({
+  key: 'toastMessage',
+  default: '',
+});
+
+export {
+  UploadedImage,
+  HashtagList,
+  PeriodState,
+  IsAdsState,
+  SortState,
+  LastIdState,
+  ToastMessage,
+};

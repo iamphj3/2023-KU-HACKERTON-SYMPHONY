@@ -2,12 +2,14 @@ import { styled } from 'styled-components';
 import { useState, useEffect, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import { IcUploadPurple, IcUploadWhite } from '../../assets/icons';
-import { UploadedImage } from '../../recoil/atom';
+import { UploadedImage, HashtagList, ToastMessage } from '../../recoil/atom';
 
 export default function ImageSearch() {
+  const [hashtagList, setHashtagList] = useRecoilState(HashtagList);
   const [selectedImage, setSelectedImage] = useRecoilState(UploadedImage);
   const imageInputRef = useRef(null);
   const [URLThumbnail, setURLThumbnail] = useState(null);
+  const [toastMessage, setToastMessage] = useRecoilState(ToastMessage);
 
   const handleFileSelect = (e) => {
     const { files } = e.target;
@@ -17,6 +19,10 @@ export default function ImageSearch() {
   };
 
   const handleFileBtnClick = () => {
+    if (hashtagList.length === 0) {
+      setToastMessage('해시태그를 먼저 추가해주세요.');
+      return;
+    }
     imageInputRef.current?.click();
   };
 
