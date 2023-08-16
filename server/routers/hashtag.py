@@ -16,8 +16,9 @@ from time import sleep
 from AI.imageRetrieval import model_predict
 from models.instagrapi_exceptions import handle_exception
 import concurrent.futures
-import random, httpx, asyncio
+import random, httpx, asyncio, base64
 from pydantic import BaseModel
+from urllib.request import urlopen
 db = get_db()
 
 router = APIRouter(
@@ -180,10 +181,12 @@ async def post_hashtags(hastag : Hashtag):
 #
 ##
 @router.get("/fetch")
-async def fetch_data(url):
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        return response.text
+async def fetch_data(image_url):
+    with urlopen(image_url) as response:
+        blob = response.read()
+    encoded_data = base64.b64encode(blob).decode('utf-8')
+    return encoded_data  
+   
 
 #
 ##collection 합집합 적용 
