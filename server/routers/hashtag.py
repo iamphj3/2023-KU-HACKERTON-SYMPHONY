@@ -1,5 +1,6 @@
 from os import environ
 import time, json, sys, os
+from .url_convert import url_to_base64
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from dotenv import load_dotenv
 from instagrapi import Client
@@ -45,7 +46,7 @@ cl.get_timeline_feed()
 
 def get_hashtag_medias(medias):
     #start = time.time()
-    #print(tag)
+    print("생성")
     #medias = cl.hashtag_medias_recent_v1(tag, amount=amount)
     #print("1) tag:"+tag+" "+" amount:"+str(amount)+" timetotal:", time.time() - start) 
     #start = time.time()
