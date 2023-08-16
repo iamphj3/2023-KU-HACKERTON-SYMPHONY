@@ -132,6 +132,8 @@ async def post_hashtags(hastag : Hashtag):
             if not(tag in collection_names):  # 중복 확인
                 future = executor.submit(cl.hashtag_medias_recent_v1, tag, amount)
                 results.append(future)
+
+    ##멀티쓰레드 
     # with concurrent.futures.ThreadPoolExecutor() as executor:
     #     for tag in hastag.hashtags:
     #         if not(tag in collection_names): # 중복 확인
@@ -237,12 +239,16 @@ async def get_hashtags(tag_id:str, lastId:str):
         sort_op.append(('image_rank', 1))
         if(lastId!="000000000000000000000000"):
             last_id = await db[tag_id].find_one({"_id":ObjectId(lastId)})
+            if last_id is None :
+                raise HTTPException(status_code=400, detail={"status":400, "message":"잘못된 lastId 전달"})
             query["image_rank"] = { "$gt": last_id["image_rank"] }
     else:
         if sort_doc["isLast"]+sort_doc["isLike"]+sort_doc["isComment"] == 1:
             sort_op.append(('sort_rank', 1))
             if(lastId!="000000000000000000000000"):
                 last_id = await db[tag_id].find_one({"_id":ObjectId(lastId)})
+                if last_id is None :
+                    raise HTTPException(status_code=400, detail={"status":400, "message":"잘못된 lastId 전달"})
                 query["sort_rank"] = { "$gt": last_id["sort_rank"] }  
 
     if len(sort_op) == 0:
