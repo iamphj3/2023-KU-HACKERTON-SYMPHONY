@@ -6,7 +6,7 @@ import { formatDate } from '../../utils';
 export default function PostCard({ postData }) {
   const { comment_count, date, id, image_url, isAds, like_count, pk, text, user_name } = postData;
 
-  const slicedText = text.length > 31 ? `${text.substring(0, 31)}...` : text;
+  const slicedText = text.length > 26 ? `${text.substring(0, 26)}...` : text;
   const [encodedUrl, setEncodedUrl] = useState();
 
   const handlePostCardClick = () => {
@@ -18,6 +18,8 @@ export default function PostCard({ postData }) {
   useEffect(() => {
     const encodeAndSetImage = async (imageUrl) => {
       const response = await fetch(imageUrl);
+      console.log(imageUrl, 'imageUrl');
+      console.log(response, 'response');
       const blob = await response.blob();
 
       const reader = new FileReader();
