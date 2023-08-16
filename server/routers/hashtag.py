@@ -18,7 +18,7 @@ from models.instagrapi_exceptions import handle_exception
 import concurrent.futures
 import random, httpx, asyncio, base64
 from pydantic import BaseModel
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 db = get_db()
 
 router = APIRouter(
@@ -182,10 +182,15 @@ async def post_hashtags(hastag : Hashtag):
 ##
 @router.get("/fetch")
 async def fetch_data(image_url):
-    with urlopen(image_url) as response:
-        blob = response.read()
-    encoded_data = base64.b64encode(blob).decode('utf-8')
-    return encoded_data  
+    req = Request(image_url, headers={'User-Agent':'Mozilla/5.0'})
+    try: 
+        with urlopen(req) as response:
+            blob = response.read()
+            encoded_data = base64.b64encode(blob).decode('utf-8')
+            return {"status": 200, "data" : encoded_data}
+    except Exception as e:
+        print("Error:", e)
+        raise HTTPException(status_code=400, detail={"status":400, "message":"image url 확인"})    
    
 
 #
