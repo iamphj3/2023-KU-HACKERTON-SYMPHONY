@@ -12,6 +12,7 @@ import {
   LastIdState,
 } from '../../recoil/atom';
 import { getSearchResult, getTotalPostNum } from '../../apis/result';
+import { PostLayout } from '../../layouts/PostLayout';
 
 export default function PostResult({ searchDataId }) {
   const [searchId, setSearchId] = useState(searchDataId);
@@ -21,6 +22,7 @@ export default function PostResult({ searchDataId }) {
   const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setImageUrl] = useRecoilState(UploadedImage);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -53,8 +55,10 @@ export default function PostResult({ searchDataId }) {
       console.log('posts', posts);
       console.log('postList', postList);
       console.log('lastId', lastId);
+      setLoading(false);
     } catch (error) {
       console.error(error);
+      setLoading(false);
     }
   };
 
@@ -75,16 +79,20 @@ export default function PostResult({ searchDataId }) {
   return (
     <StPostResult key={searchId}>
       {searchId ? (
-        <>
-          <p>{`총 ${totalPost}개의 게시물`}</p>
-          <StPostList>
-            {postList.slice(10).map((data) => (
-              <div key={data.id} ref={ref}>
-                <PostCard postData={data} />
-              </div>
-            ))}
-          </StPostList>
-        </>
+        loading ? (
+          <PostLayout />
+        ) : (
+          <>
+            <p>{`총 ${totalPost}개의 게시물`}</p>
+            <StPostList>
+              {postList.slice(10).map((data) => (
+                <div key={data.id} ref={ref}>
+                  <PostCard postData={data} />
+                </div>
+              ))}
+            </StPostList>
+          </>
+        )
       ) : (
         <StEmptyView>
           <p>
@@ -97,7 +105,6 @@ export default function PostResult({ searchDataId }) {
     </StPostResult>
   );
 }
-
 const StPostResult = styled.section`
   & > p {
     margin-bottom: 1.6rem;
