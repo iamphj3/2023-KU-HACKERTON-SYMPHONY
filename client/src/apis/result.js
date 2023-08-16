@@ -12,15 +12,12 @@ export const getTotalPostNum = async (tag_id) => {
 };
 
 // 해시태그 조회 API
-export const getSearchResult = async ({ tagId, lastId, period, isAds, image_url }) => {
+export const getSearchResult = async ({ tagId, lastId }) => {
   try {
     console.log('해시태그 조회 API 로딩중');
-    console.log(tagId, lastId, period, isAds, image_url);
-    let url = `/hashtag/?tag_id=${tagId}&lastId=${lastId}&period=${period}&isAds=${isAds}`;
-    if (image_url) {
-      url += `&image_url=${image_url}`;
-    }
-    const data = await client.get(url);
+    console.log(tagId, lastId);
+
+    const data = await client.get(`/hashtag/?tag_id=${tagId}&lastId=${lastId}`);
     console.log(data);
     console.log(data.data.data);
     return data.data.data;
