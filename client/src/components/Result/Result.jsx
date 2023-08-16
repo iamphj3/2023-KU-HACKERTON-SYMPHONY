@@ -1,9 +1,11 @@
 import { styled } from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import PostResult from './PostResult';
-import { getSortedResult } from '../../apis/result';
+import { getSearchResult, getSortedResult } from '../../apis/result';
+import { SortState, LastIdState } from '../../recoil/atom';
 
 const RESULT_TABS = {
   tabList: ['최신순', '좋아요 순', '댓글 많은 순'],
@@ -19,26 +21,41 @@ const RESULT_TABS = {
 
 export default function Result() {
   const location = useLocation();
-  const searchDataId = location.state ? location.state.searchDataId : null;
+  const params = new URLSearchParams(location.search);
+  const searchDataId = params.get('tagid');
 
   const { tabList, selectedStyle, noSelectedStyle } = RESULT_TABS;
-  const [selectedTab, setSeletedTab] = useState('최신순');
+  const [selectedTab, setSeletedTab] = useRecoilState(SortState);
+  const [lastId, setLastId] = useRecoilState(LastIdState);
 
   const handleTabChange = async (tab) => {
     setSeletedTab(tab);
+
     const queryParams = RESULT_TABS.queryParameters[tab];
     const { isLast, isLike, isComment } = queryParams;
-    // console.log(isLast, isLike, isComment);
+    const resStatus = await getSortedResult(searchDataId, isLast, isLike, isComment);
 
-    const res = await getSortedResult(searchDataId, isLast, isLike, isComment);
-    console.log(res);
+    if (resStatus === 200) {
+      setLastId('000000000000000000000000');
+      window.location.reload();
+    }
   };
+
+  console.log(lastId);
+
+  const selectedTabIndex = tabList.indexOf(selectedTab);
 
   return (
     <StResult>
       <div>
         <h2>검색 결과</h2>
-        <TabSwitcher tabList={tabList} selectedStyle={selectedStyle} noSelectedStyle={noSelectedStyle} onTabChange={handleTabChange} />
+        <TabSwitcher
+          selectedtab={selectedTabIndex}
+          tabList={tabList}
+          selectedStyle={selectedStyle}
+          noSelectedStyle={noSelectedStyle}
+          onTabChange={handleTabChange}
+        />
       </div>
       <PostResult searchDataId={searchDataId} />
     </StResult>

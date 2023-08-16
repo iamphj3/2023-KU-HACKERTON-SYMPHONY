@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BaseLayout } from '../layouts/BaseLayout';
 import { Result } from '../components/Result';
 import { SearchBox } from '../components/SearchBox';

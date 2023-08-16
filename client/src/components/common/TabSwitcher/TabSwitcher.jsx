@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
 
-function TabSwitcher({ tabList, selectedStyle, noSelectedStyle, onTabChange }) {
-  const [activeTab, setActiveTab] = useState(tabList[0]);
+function TabSwitcher({ selectedtab, tabList, selectedStyle, noSelectedStyle, onTabChange }) {
+  const [activeTab, setActiveTab] = useState(tabList[selectedtab]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

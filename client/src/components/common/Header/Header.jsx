@@ -1,19 +1,20 @@
 import { styled } from 'styled-components';
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { IcInstagLogo } from '../../../assets/icons';
 
 export default function Header() {
-  const location = useLocation();
+  const navigate = useNavigate();
+
   const handleLogoClick = () => {
-    window.location.reload(); // Reload the current page
+    navigate('/');
   };
 
   return (
     <StHeader>
       <h1 className="sr-only">insTAG</h1>
-      <a href={location.pathname} onClick={handleLogoClick}>
+      <button type="button" onClick={handleLogoClick}>
         <IcInstagLogo />
-      </a>
+      </button>
     </StHeader>
   );
 }

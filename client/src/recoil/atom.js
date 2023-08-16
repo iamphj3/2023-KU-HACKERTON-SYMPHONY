@@ -5,7 +5,7 @@ const { persistAtom } = recoilPersist();
 
 const UploadedImage = atom({
   key: 'uploadedImage',
-  default: null,
+  default: '',
   effects_UNSTABLE: [persistAtom],
 });
 
@@ -27,4 +27,29 @@ const IsAdsState = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export { UploadedImage, HashtagList, PeriodState, IsAdsState };
+const SortState = atom({
+  key: 'sortState',
+  default: '최신순',
+  effects_UNSTABLE: [persistAtom],
+});
+
+const LastIdState = atom({
+  key: 'lastIdState',
+  default: '000000000000000000000000',
+  effects_UNSTABLE: [persistAtom],
+});
+
+const ToastMessage = atom({
+  key: 'toastMessage',
+  default: '',
+});
+
+export {
+  UploadedImage,
+  HashtagList,
+  PeriodState,
+  IsAdsState,
+  SortState,
+  LastIdState,
+  ToastMessage,
+};

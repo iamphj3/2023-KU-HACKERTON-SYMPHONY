@@ -9,6 +9,12 @@ export default function PostCard({ postData }) {
   const slicedText = text.length > 31 ? `${text.substring(0, 31)}...` : text;
   const [encodedUrl, setEncodedUrl] = useState();
 
+  const handlePostCardClick = () => {
+    if (postData.instagram_url) {
+      window.open(postData.instagram_url, '_blank');
+    }
+  };
+
   useEffect(() => {
     const encodeAndSetImage = async (imageUrl) => {
       const response = await fetch(imageUrl);
@@ -25,7 +31,7 @@ export default function PostCard({ postData }) {
   }, []);
 
   return (
-    <StPostCard>
+    <StPostCard onClick={handlePostCardClick}>
       {encodedUrl && <img alt="post-thumbnail" src={encodedUrl} />}
       <StInteractions>
         <div>
