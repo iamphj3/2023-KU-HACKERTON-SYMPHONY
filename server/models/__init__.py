@@ -9,7 +9,7 @@ load_dotenv()
 class mongoDB:
     def __init__(self):
         self.client = None
-        self.client = None
+        #self.client = None
 
     def connect(self):
         #self.client = AsyncIOMotorClient("mongodb://localhost:27017")
@@ -19,6 +19,7 @@ class mongoDB:
     
     def close(self):
         self.client.close()
+
 
 def get_db():
     mongodb = mongoDB()

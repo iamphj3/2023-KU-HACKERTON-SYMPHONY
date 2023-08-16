@@ -18,6 +18,8 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 
+print("hello")
+
 @app.get("/")
 def root():
     return {"message": "Hello, insTAG!"}
