@@ -261,7 +261,7 @@ async def get_hashtags(tag_id:str, lastId:str):
 
     # 마지막 요청인지 
     if(len(docs)==0): 
-        raise HTTPException(status_code=400, detail={"status":400, "message":"해당 조건에 맞는 검색 결과가 없습니다.(마지막 요청입니다.)"})
+        raise HTTPException(status_code=204, detail={"status":204, "message":"해당 조건에 맞는 검색 결과가 없습니다.(마지막 요청입니다.)"})
     
 
     query_id = {}
@@ -292,7 +292,7 @@ async def get_tag_id(hashtags : List[str] = Query(None)):
     tag_obj = await find_tag_id(hashtags)
 
     if tag_obj is None: #검색결과 없음 return 
-        raise HTTPException(status_code=400, detail={"status":400, "message":"검색 결과가 존재하지 않습니다."})
+        raise HTTPException(status_code=204, detail={"status":204, "message":"검색 결과가 존재하지 않습니다."})
     
     return {"status":200, "message": "tag id return 성공", "data": {"tag_id" : str(tag_obj.get("_id"))}}
 
