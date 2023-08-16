@@ -9,6 +9,7 @@ import {
   IsAdsState,
   UploadedImage,
   IdLoadingState,
+  ToastMessage,
 } from '../../recoil/atom';
 import { postSearch, getHashtagId } from '../../apis/search';
 
@@ -21,11 +22,17 @@ export default function HashtagSearch() {
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setIimageUrl] = useRecoilState(UploadedImage);
   const [idLoading, setIdloading] = useRecoilState(IdLoadingState);
+  const [toastMessage, setToastMessage] = useRecoilState(ToastMessage);
 
   const navigate = useNavigate();
 
   const handleSearch = async () => {
     try {
+      if (hashtagList.length === 0) {
+        setToastMessage('해시태그를 먼저 추가해주세요.');
+        return;
+      }
+
       setIdloading(true);
       const status = await postSearch(periodState, isAdFiltered, hashtagList, imageUrl);
       const searchDataId = await getHashtagId(hashtagList);
