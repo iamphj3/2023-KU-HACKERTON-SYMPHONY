@@ -123,8 +123,10 @@ async def post_hashtags(hastag : Hashtag):
     amount = (int)(fix_amount/len(hastag.hashtags))
     if(amount<20): amount = 20
     print(amount)
+
     collection_names = await db.list_collection_names()
     
+    amount = 20
     results = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
         for tag in hastag.hashtags:
