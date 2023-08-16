@@ -7,7 +7,7 @@ export default function PostCard({ postData }) {
   const { comment_count, date, id, image_url, isAds, like_count, pk, text, user_name } = postData;
 
   const slicedText = text.length > 31 ? `${text.substring(0, 31)}...` : text;
-  const [encodedUrl, setEncodedUrl] = useState();
+  // const [encodedUrl, setEncodedUrl] = useState();
 
   console.log('image_url', image_url);
 
@@ -17,26 +17,27 @@ export default function PostCard({ postData }) {
     }
   };
 
-  useEffect(() => {
-    const encodeAndSetImage = async (imageUrl) => {
-      const response = await fetch(imageUrl, { method: 'GET', mode: 'no-cors' });
-      const blob = await response.blob();
+  // useEffect(() => {
+  //   const encodeAndSetImage = async (imageUrl) => {
+  //     const response = await fetch(imageUrl, { method: 'GET', mode: 'no-cors' });
+  //     const blob = await response.blob();
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEncodedUrl(reader.result);
-      };
-      reader.readAsDataURL(blob);
-    };
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setEncodedUrl(reader.result);
+  //     };
+  //     reader.readAsDataURL(blob);
+  //   };
 
-    encodeAndSetImage(image_url);
-  }, []);
+  //   encodeAndSetImage(image_url);
+  // }, []);
 
-  console.log('encodedUrl', encodedUrl);
+  // console.log('encodedUrl', encodedUrl);
 
   return (
     <StPostCard onClick={handlePostCardClick}>
-      {encodedUrl && <img alt="post-thumbnail" src={encodedUrl} />}
+      {/* {encodedUrl && <img alt="post-thumbnail" src={image_url} />} */}
+      <img alt="post-thumbnail" src={image_url} />
       <StInteractions>
         <div>
           <IcHeart />

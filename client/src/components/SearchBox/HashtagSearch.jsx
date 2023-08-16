@@ -3,7 +3,13 @@ import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IcSearch } from '../../assets/icons';
-import { HashtagList, PeriodState, IsAdsState, UploadedImage } from '../../recoil/atom';
+import {
+  HashtagList,
+  PeriodState,
+  IsAdsState,
+  UploadedImage,
+  IdLoadingState,
+} from '../../recoil/atom';
 import { postSearch, getHashtagId } from '../../apis/search';
 
 export default function HashtagSearch() {
@@ -14,15 +20,20 @@ export default function HashtagSearch() {
   const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setIimageUrl] = useRecoilState(UploadedImage);
+  const [idLoading, setIdloading] = useRecoilState(IdLoadingState);
+
   console.log(hashtagList, isAdFiltered, periodState, imageUrl);
 
   const navigate = useNavigate();
 
   const handleSearch = async () => {
     try {
+      setIdloading(true);
       const status = await postSearch(periodState, isAdFiltered, hashtagList, imageUrl);
       const searchDataId = await getHashtagId(hashtagList);
-
+      if (searchDataId) {
+        setIdloading(false);
+      }
       navigate(`/result?tagid=${searchDataId}`);
     } catch (error) {
       console.error('Error searching hashtags:', error);

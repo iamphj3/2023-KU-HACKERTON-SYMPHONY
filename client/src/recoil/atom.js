@@ -44,6 +44,11 @@ const ToastMessage = atom({
   default: '',
 });
 
+const IdLoadingState = atom({
+  key: 'idLoadingState',
+  default: false,
+});
+
 export {
   UploadedImage,
   HashtagList,
@@ -52,4 +57,5 @@ export {
   SortState,
   LastIdState,
   ToastMessage,
+  IdLoadingState,
 };
