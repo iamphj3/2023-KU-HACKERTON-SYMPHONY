@@ -16,7 +16,7 @@ from time import sleep
 from AI.imageRetrieval import model_predict
 from models.instagrapi_exceptions import handle_exception
 import concurrent.futures
-import random
+import random, httpx, asyncio
 from pydantic import BaseModel
 db = get_db()
 
@@ -177,6 +177,13 @@ async def post_hashtags(hastag : Hashtag):
     print("total time// amount:"+str(amount)+" timetotal:", time.time() - start)
     return {"status": 201, "message": "검색 종료"}
 
+#
+##
+@router.get("/fetch")
+async def fetch_data(url):
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        return response.text
 
 #
 ##collection 합집합 적용 
