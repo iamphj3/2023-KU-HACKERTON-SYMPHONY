@@ -1,21 +1,34 @@
-
 import os
 import numpy as np
 import tensorflow as tf
-from sklearn.neighbors import NearestNeighbors
 from urllib.request import urlopen
 import cv2
+from skimage.transform import resize
+from PIL import Image
+import base64
+import io
+#import skimage.io
 
-from .function.transformer import ImageTransformer
-from .function.image_transform import apply_transformer
+import keras.utils as image
+from keras.applications.vgg16 import preprocess_input
+
+from .function.cos_sim import cos_sim
 
 #메인 모델
 def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_url":"http"}]
-    parallel = True
     
-    img_set=[]
-    imgs_test=[]
+    #메인 모델
+    base_model = tf.keras.applications.VGG16(weights='imagenet')
+    #base_model.summary()
+    
+    # Feature Map 추출 모델 생성
+    model = tf.keras.models.Model(inputs = base_model.input,outputs = base_model.get_layer('block5_conv3').output)
+    #model.summary()
 
+
+    img_set=[]
+    
+    #이미지셋 전처리
     for data in img_url_list:
         img=urlopen(data["image_url"])
         image = np.asarray(bytearray(img.read()), dtype="uint8")
@@ -23,42 +36,53 @@ def model_predict(queryImage,img_url_list): #img_url_list=[{"id":"df" , "image_u
         img_set.append(image)
         
     imgs_train = img_set
+    
+    #feature 저장할 리스트
+    feature_map=[]
+    for img in imgs_train:
+        img = cv2.resize(img,dsize=(224,224))
+        img = image.img_to_array(img)
+        img = img.reshape((1, img.shape[0],img.shape[1],img.shape[2]))
+        img = preprocess_input(img)
+        # Feature Map 추출
+        feature=model.predict(img)
+        feature_map.append(feature)
+    
+    #image_test = urlopen(queryImage)
+    #image_test = np.asarray(bytearray(image_test.read()), dtype="uint8")
+    #image_test = cv2.imdecode(image_test, cv2.IMREAD_COLOR)
 
-    image_test = urlopen(queryImage)
-    image_test = np.asarray(bytearray(image_test.read()), dtype="uint8")
-    image_test = cv2.imdecode(image_test, cv2.IMREAD_COLOR)
-    imgs_test.append(image_test)
+    #쿼리 이미지 전처리
+    #base64_img
+    imgdata = base64.b64decode(queryImage)
+    dataBytesIO = io.BytesIO(imgdata)
+    image = Image.open(dataBytesIO)
+    image = image.resize((224, 224))
+    test_image=cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
+    
+    q_feature=[]
+    
+    q_img = cv2.resize(test_image,dsize=(224,224))
+    q_img = image.img_to_array(q_img)
+    q_img = q_img.reshape((1, q_img.shape[0],q_img.shape[1],q_img.shape[2]))
+    q_img = preprocess_input(q_img)
+    # Feature Map 추출
+    q_feature=model.predict(q_img)
 
-    #VGGNet 로딩
-    shape_img = (100,100,3)
-    model = tf.keras.applications.VGG19(weights='imagenet', include_top=False, input_shape=shape_img)
+    #코사인 유사도
+    similar={}
+    i=0
+    for img in feature_map:
+        similarity= cos_sim(q_feature.flatten(),img.flatten())
+        similar.setdefault(i,similarity)
+        i+=1
 
-    shape_img_resize = tuple([int(x) for x in model.input.shape[1:]])
-    input_shape_model = tuple([int(x) for x in model.input.shape[1:]])
-    output_shape_model = tuple([int(x) for x in model.output.shape[1:]])
-    n_epochs = None
+    similar=sorted(similar.items(), key = lambda item: item[1], reverse=True)
 
-
-    # 이미지 전처리
-    transformer = ImageTransformer(shape_img_resize)
-    imgs_train_transformed = apply_transformer(imgs_train, transformer, parallel=parallel)
-    imgs_test_transformed = apply_transformer(imgs_test, transformer, parallel=parallel)
-
-    # np 배열화
-    X_train = np.array(imgs_train_transformed).reshape((-1,) + input_shape_model)
-    X_test = np.array(imgs_test_transformed).reshape((-1,) + input_shape_model)
-
-    # 임베딩
-    E_train = model.predict(X_train)
-    E_train_flatten = E_train.reshape((-1, np.prod(output_shape_model)))
-    E_test = model.predict(X_test)
-    E_test_flatten = E_test.reshape((-1, np.prod(output_shape_model)))
-
-    # k-근접
-    knn = NearestNeighbors(n_neighbors=len(imgs_train), metric="cosine")
-    knn.fit(E_train_flatten)
-    _, indices = knn.kneighbors(E_test_flatten)
+    #유사도 순 정렬
     imgs_retrieval=[]
-    for idx in indices.flatten():
-        imgs_retrieval.append(img_url_list[idx])
+    
+    for sim in similar:
+        imgs_retrieval.append(img_url_list[sim[0]])
+    
     return imgs_retrieval
