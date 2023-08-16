@@ -18,8 +18,6 @@ export default function PostCard({ postData }) {
   useEffect(() => {
     const encodeAndSetImage = async (imageUrl) => {
       const response = await fetch(imageUrl);
-      console.log(imageUrl, 'imageUrl');
-      console.log(response, 'response');
       const blob = await response.blob();
 
       const reader = new FileReader();

@@ -32,6 +32,10 @@ export default function HashtagSearch() {
         setToastMessage('해시태그를 먼저 추가해주세요.');
         return;
       }
+      if (hashtagList.length > 5) {
+        setToastMessage('해시태그는 5개까지만 입력할 수 있습니다.');
+        return;
+      }
 
       setIdloading(true);
       const status = await postSearch(periodState, isAdFiltered, hashtagList, imageUrl);
@@ -47,6 +51,10 @@ export default function HashtagSearch() {
 
   const handleKeUp = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
+      if (hashtagList.length > 4) {
+        setToastMessage('해시태그는 5개까지만 입력할 수 있습니다.');
+        return;
+      }
       if (hashtagInput.trim() !== '') {
         setHashtagList((prevList) => [...prevList, hashtagInput]);
         setHashtagInput('');

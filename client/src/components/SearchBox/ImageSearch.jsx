@@ -11,7 +11,6 @@ export default function ImageSearch() {
 
   const [URLThumbnail, setURLThumbnail] = useState(null);
   const [selectedImage, setSelectedImage] = useState('');
-  console.log(uploadedImage);
 
   const imageInputRef = useRef(null);
 
@@ -54,7 +53,6 @@ export default function ImageSearch() {
         const url = await createImageURL(selectedImage);
         setURLThumbnail(url);
         setUploadedImage(url);
-        console.log('uploadedImage', uploadedImage);
       };
       fetchImageURL();
     }
