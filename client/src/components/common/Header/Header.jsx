@@ -1,11 +1,19 @@
 import { styled } from 'styled-components';
+import { useLocation } from 'react-router-dom';
 import { IcInstagLogo } from '../../../assets/icons';
 
 export default function Header() {
+  const location = useLocation();
+  const handleLogoClick = () => {
+    window.location.reload(); // Reload the current page
+  };
+
   return (
     <StHeader>
       <h1 className="sr-only">insTAG</h1>
-      <IcInstagLogo />
+      <a href={location.pathname} onClick={handleLogoClick}>
+        <IcInstagLogo />
+      </a>
     </StHeader>
   );
 }
@@ -27,5 +35,5 @@ const StHeader = styled.header`
     width: 1px;
     padding: 0;
     border: 0;
-}
+  }
 `;
