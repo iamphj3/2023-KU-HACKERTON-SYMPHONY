@@ -1,5 +1,5 @@
 import { styled } from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import TabSwitcher from '../common/TabSwitcher/TabSwitcher';
 import PostResult from './PostResult';
@@ -18,9 +18,7 @@ const RESULT_TABS = {
 };
 
 export default function Result() {
-  // const location = useLocation();/
-  // const searchDataId = location.state ? location.state.searchDataId : null;
-
+  const location = useLocation();
   const params = new URLSearchParams(location.search);
   const searchDataId = params.get('tagid');
   console.log(searchDataId);
@@ -36,6 +34,10 @@ export default function Result() {
     const res = await getSortedResult(searchDataId, isLast, isLike, isComment);
     // console.log(res);
   };
+
+  // useEffect(() => {
+  //   window.location.reload();
+  // }, []);
 
   return (
     <StResult>

@@ -2,6 +2,7 @@ import { styled } from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect, useCallback } from 'react';
 import { useRecoilState } from 'recoil';
+import { useLocation } from 'react-router-dom';
 import PostCard from './PostCard';
 import { HashtagList, IsAdsState, PeriodState, UploadedImage } from '../../recoil/atom';
 import { getSearchResult, getTotalPostNum } from '../../apis/result';
@@ -14,6 +15,8 @@ export default function PostResult({ searchDataId }) {
   const [isAdFiltered, setIsAdFiltered] = useRecoilState(IsAdsState);
   const [periodState, setPeriodState] = useRecoilState(PeriodState);
   const [imageUrl, setImageUrl] = useRecoilState(UploadedImage);
+
+  const location = useLocation();
 
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -48,10 +51,12 @@ export default function PostResult({ searchDataId }) {
 
   useEffect(() => {
     if (searchId) {
+      setLastId('000000000000000000000000');
       getTotalPost();
       getPost();
+      // window.location.reload();
     }
-  }, []);
+  }, [searchId]);
 
   useEffect(() => {
     if (inView) {
@@ -60,7 +65,7 @@ export default function PostResult({ searchDataId }) {
   }, [inView]);
 
   return (
-    <StPostResult>
+    <StPostResult key={searchId}>
       {searchId ? (
         <>
           <p>{`총 ${totalPost}개의 게시물`}</p>
