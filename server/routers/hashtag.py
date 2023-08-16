@@ -105,11 +105,12 @@ async def post_hashtags(hastag : Hashtag):
     tag_id = str(result.inserted_id)
 
     #검색
-    fix_amount = 80
-    amount = (int)(fix_amount/len(hastag.hashtags))
-    print(amount)
+    #fix_amount = 80
+    #amount = (int)(fix_amount/len(hastag.hashtags))
+    #print(amount)
     collection_names = await db.list_collection_names()
     
+    amount = 20
     results = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for tag in hastag.hashtags:
